@@ -1,4 +1,5 @@
 ---
+import '../styles/global.css';
 ---
 
 <html lang="en">
@@ -10,8 +11,10 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>braxton.is working</title>
 	</head>
-	<body>
-    <h1>braxton.is</h1>
-    <h2>working on this website</h2>
+	<body class="min-h-screen bg-stone-950 text-stone-100 antialiased">
+		<main class="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6">
+			<h1 class="text-5xl font-bold tracking-tight">braxton.is</h1>
+			<h2 class="mt-3 text-xl text-stone-400">working on this website</h2>
+		</main>
 	</body>
 </html>
