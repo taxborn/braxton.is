@@ -1,0 +1,12 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v7
+      - name: list dir
+        uses: ls -la

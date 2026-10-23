@@ -1,0 +1,9 @@
+on: [push]
+
+jobs:
+  build:
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v7
+      - name: list dir
+        run: ls -la
