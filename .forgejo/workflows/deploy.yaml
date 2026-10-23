@@ -10,4 +10,4 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v7
       - name: list dir
-        uses: ls -la
+        run: ls -la
