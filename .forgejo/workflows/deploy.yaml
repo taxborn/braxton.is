@@ -3,6 +3,9 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy
+
 jobs:
   deploy:
     runs-on: debian
@@ -18,6 +21,24 @@ jobs:
         run: npm ci
       - name: build
         run: npm run build
-      # TODO: deployment details to come; dist/ is the build output to ship
+      # The server bundle imports from node_modules at runtime, so a release
+      # is client/, server/ and production-only dependencies together.
+      - name: prune dev dependencies
+        run: npm prune --omit=dev
+      - name: package release
+        run: tar -czf release.tgz -C dist client server -C "$PWD" node_modules
+      # Carbon's sshd runs one forced command for this key (see
+      # modules/nixos/services/braxton-is.nix in nixcfg). It reads the revision
+      # from the command and the tarball from stdin, so nothing else is needed.
       - name: deploy
-        run: echo "deploy step not yet implemented"
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Carbon's host key, from keys/root_carbon.pub in nixcfg. Pinned so a
+          # swapped host cannot receive the build.
+          echo "100.64.2.0 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDqCVxnBi3Yv85dGjk37Uwx8EMogqGQlRS50JxhKysLV" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            braxton-deploy@100.64.2.0 "deploy $GITHUB_SHA" < release.tgz
