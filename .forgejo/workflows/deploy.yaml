@@ -5,6 +5,7 @@ on:
 
 jobs:
   deploy:
+    runs-on: debian
     steps:
       - name: checkout repo
         uses: actions/checkout@v7
