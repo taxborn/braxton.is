@@ -9,5 +9,15 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v7
-      - name: list dir
-        run: ls -la
+      - name: setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: install dependencies
+        run: npm ci
+      - name: build
+        run: npm run build
+      # TODO: deployment details to come; dist/ is the build output to ship
+      - name: deploy
+        run: echo "deploy step not yet implemented"
