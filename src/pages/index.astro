@@ -1,20 +1,33 @@
 ---
-import '../styles/global.css';
+import { Icon } from "astro-icon/components";
+import Layout from "../components/Layout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>braxton.is working</title>
-	</head>
-	<body class="min-h-screen bg-stone-950 text-stone-100 antialiased">
-		<main class="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6">
-			<h1 class="text-5xl font-bold tracking-tight">braxton.is</h1>
-			<h2 class="mt-3 text-xl text-stone-400">working on this website</h2>
-		</main>
-	</body>
-</html>
+<Layout>
+  <div>
+    <h1 class="text-5xl font-bold tracking-tight lowercase">hi, i'm braxton</h1>
+    <p>software engineer, protocol-intrigued, cat dad</p>
+  </div>
+  <div class="py-4">
+    <ul class="inline-flex gap-4">
+      <li>
+        <a
+          href="https://bsky.app/profile/braxton.is"
+          class="inline-flex items-center gap-1.5"
+        >
+          <Icon name="simple-icons:bluesky" class="size-4" />
+          @braxton.is
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://code.biscuits.at/braxton"
+          class="inline-flex items-center gap-1.5"
+        >
+          <Icon name="simple-icons:forgejo" class="size-4" />
+          @braxton
+        </a>
+      </li>
+    </ul>
+  </div>
+</Layout>

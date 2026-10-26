@@ -1,5 +1,10 @@
 # [braxton.is](https://braxton.is)
+
 my personal website
+
+## Color scheme / theme
+
+[Evergarden](https://evergarden.moe) - `curl -L evergarden.moe`
 
 ## Deployment
 
