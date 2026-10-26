@@ -2,6 +2,10 @@
 
 my personal website
 
+## Color scheme / theme
+
+[Evergarden](https://evergarden.moe) - `curl -L evergarden.moe`
+
 ## Deployment
 
 A push to `main` runs `.forgejo/workflows/deploy.yaml` on Carbon's runner. It

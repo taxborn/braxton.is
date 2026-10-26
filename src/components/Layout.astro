@@ -1,0 +1,36 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="braxton's digital garden" />
+    <meta name="generator" content={Astro.generator} />
+    <title>braxton.is working</title>
+    <link
+      rel="site.standard.document"
+      href="at://did:plc:2grdruc2p6fjhksrfpt366yl/site.standard.publication/3myqlk77shz22"
+    />
+  </head>
+  <body class="min-h-screen bg-[#232a2e] text-[#f8f9e8] antialiased">
+    <div class="container mx-auto">
+      <header>
+        <nav class="py-2">
+          <a href="/" class="mr-2 font-bold cursor-grab">
+            braxton<span class="opacity-75">.</span>is
+          </a>
+          <p class="inline italic text-[#adc9bc]">
+            working on this website <span class="opacity-50">5m ago</span>
+          </p>
+        </nav>
+      </header>
+      <main class="flex min-h-screen flex-col py-2">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
