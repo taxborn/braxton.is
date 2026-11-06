@@ -2,7 +2,7 @@
 // Runs inline in <head> (see Layout.astro) so the right theme paints on first frame.
 (() => {
   // Flip to false to get southern-hemisphere seasons.
-  const NORTHERN_HEMISPHERE = false;
+  const NORTHERN_HEMISPHERE = true;
 
   // Meeus, "Astronomical Algorithms" ch. 27: instant of each equinox/solstice.
   const MEAN = [
