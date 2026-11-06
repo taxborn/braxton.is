@@ -1,14 +1,21 @@
 ---
 import { Icon } from "astro-icon/components";
 import Layout from "../components/Layout.astro";
+import { getRecord } from "../lib/atproto";
+
+const sifaProfile = await getRecord<{ headline?: string }>(
+  "id.sifa.profile.self",
+);
+const headline =
+  sifaProfile?.headline ?? "software engineer, protocol-intrigued, cat parent";
 ---
 
 <Layout>
   <div>
     <h1 class="text-5xl font-bold tracking-tight lowercase">hi, i'm braxton</h1>
-    <p>software engineer, protocol-intrigued, cat dad</p>
+    <p class="lowercase">{headline}</p>
   </div>
-  <div class="py-4">
+  <div class="py-2">
     <ul class="inline-flex gap-4">
       <li>
         <a
@@ -26,6 +33,15 @@ import Layout from "../components/Layout.astro";
         >
           <Icon name="simple-icons:forgejo" class="size-4" />
           @braxton
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://sifa.id/p/braxton.is"
+          class="inline-flex items-center gap-1.5"
+        >
+          <Icon name="boxicons:briefcase" class="size-4" />
+          sifa.id
         </a>
       </li>
     </ul>

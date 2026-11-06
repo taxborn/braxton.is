@@ -1,0 +1,119 @@
+/*
+ * evergarden (https://codeberg.org/evergarden/palette), one flavor per season.
+ * Generated from palette.json. The active season is set on <html data-season>
+ * by src/scripts/season.js.
+ */
+
+/* fall is the default, used until/unless the script runs */
+:root,
+[data-season="fall"] {
+  color-scheme: dark;
+  --ev-red: #f57f82;
+  --ev-orange: #f7a182;
+  --ev-yellow: #f5d098;
+  --ev-lime: #dbe6af;
+  --ev-green: #cbe3b3;
+  --ev-aqua: #b3e3ca;
+  --ev-skye: #b3e6db;
+  --ev-snow: #afd9e6;
+  --ev-blue: #b2caed;
+  --ev-purple: #d2bdf3;
+  --ev-pink: #f3c0e5;
+  --ev-cherry: #fae6ef;
+  --ev-text: #f8f9e8;
+  --ev-subtext1: #adc9bc;
+  --ev-subtext0: #96b4aa;
+  --ev-overlay2: #839e9a;
+  --ev-overlay1: #6f8788;
+  --ev-overlay0: #58686d;
+  --ev-surface2: #4a585c;
+  --ev-surface1: #374145;
+  --ev-surface0: #2b3337;
+  --ev-base: #232a2e;
+  --ev-mantle: #1c2225;
+  --ev-crust: #171c1f;
+}
+
+[data-season="spring"] {
+  color-scheme: dark;
+  --ev-red: #f57f82;
+  --ev-orange: #f7a182;
+  --ev-yellow: #f5d098;
+  --ev-lime: #dbe6af;
+  --ev-green: #cbe3b3;
+  --ev-aqua: #b3e3ca;
+  --ev-skye: #b3e6db;
+  --ev-snow: #afd9e6;
+  --ev-blue: #b2caed;
+  --ev-purple: #d2bdf3;
+  --ev-pink: #f3c0e5;
+  --ev-cherry: #fae6ef;
+  --ev-text: #f8f9e8;
+  --ev-subtext1: #adc9bc;
+  --ev-subtext0: #96b4aa;
+  --ev-overlay2: #839e9a;
+  --ev-overlay1: #6f8788;
+  --ev-overlay0: #58686d;
+  --ev-surface2: #4a585c;
+  --ev-surface1: #3e4a4f;
+  --ev-surface0: #343e43;
+  --ev-base: #2b3438;
+  --ev-mantle: #232a2e;
+  --ev-crust: #1c2225;
+}
+
+[data-season="summer"] {
+  color-scheme: light;
+  --ev-red: #c58687;
+  --ev-orange: #c69883;
+  --ev-yellow: #c4aa80;
+  --ev-lime: #abb182;
+  --ev-green: #91a77a;
+  --ev-aqua: #74a48b;
+  --ev-skye: #719f96;
+  --ev-snow: #7799a3;
+  --ev-blue: #8294ad;
+  --ev-purple: #a897b8;
+  --ev-pink: #c499b8;
+  --ev-cherry: #c29fb2;
+  --ev-text: #2b3034;
+  --ev-subtext1: #455355;
+  --ev-subtext0: #576869;
+  --ev-overlay2: #707d76;
+  --ev-overlay1: #829084;
+  --ev-overlay0: #acb5a4;
+  --ev-surface2: #ceccbd;
+  --ev-surface1: #e6e1d3;
+  --ev-surface0: #ede8dd;
+  --ev-base: #f5efe6;
+  --ev-mantle: #f2eae1;
+  --ev-crust: #e8ded5;
+}
+
+[data-season="winter"] {
+  color-scheme: dark;
+  --ev-red: #f57f82;
+  --ev-orange: #f7a182;
+  --ev-yellow: #f5d098;
+  --ev-lime: #dbe6af;
+  --ev-green: #cbe3b3;
+  --ev-aqua: #b3e3ca;
+  --ev-skye: #b3e6db;
+  --ev-snow: #afd9e6;
+  --ev-blue: #b2caed;
+  --ev-purple: #d2bdf3;
+  --ev-pink: #f3c0e5;
+  --ev-cherry: #fae6ef;
+  --ev-text: #f8f9e8;
+  --ev-subtext1: #adc9bc;
+  --ev-subtext0: #96b4aa;
+  --ev-overlay2: #839e9a;
+  --ev-overlay1: #6f8788;
+  --ev-overlay0: #58686d;
+  --ev-surface2: #4a585c;
+  --ev-surface1: #374145;
+  --ev-surface0: #262f33;
+  --ev-base: #1e2528;
+  --ev-mantle: #191e21;
+  --ev-crust: #171c1f;
+}
