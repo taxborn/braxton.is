@@ -12,4 +12,8 @@ export default [
     files: ['*.js'],
     languageOptions: { globals: globals.node },
   },
+  {
+    files: ['src/scripts/**/*.js'],
+    languageOptions: { globals: globals.browser },
+  },
 ];
