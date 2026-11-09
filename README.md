@@ -8,9 +8,11 @@ my personal website
 
 ## Deployment
 
-A push to `main` runs `.forgejo/workflows/deploy.yaml` on Carbon's runner. It
-builds the site, packs `client/`, `server/` and production `node_modules/`, and
-streams the tarball over SSH to a forced command. That command unpacks it into
+A push to `main` runs `.tangled/workflows/deploy.yml` on the spindle at
+`spindle.biscuits.at`, a microVM on Carbon. It builds the site, packs `client/`,
+`server/` and production `node_modules/`, and streams the tarball over SSH to a
+forced command. The key it logs in with is the `DEPLOY_SSH_KEY` repository
+secret, under Settings → Pipelines → Secrets on Tangled. That command unpacks it into
 `/srv/braxton-is/releases/<sha>`, repoints `current` and writes
 `/srv/braxton-is/.deployed`. A systemd path unit restarts `braxton-is.service`
 from that write. The server-side half lives in nixcfg

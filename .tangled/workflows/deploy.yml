@@ -1,0 +1,44 @@
+# Builds the site and ships it to Carbon. See "Deployment" in the README.
+#
+# Forgejo needed a `concurrency: deploy` group so two deploys could not race.
+# The spindle has no such key; it runs one job at a time, which serialises
+# deploys the same way.
+when:
+  - event: push
+    branch: main
+
+engine: microvm
+image: nixos
+
+# nodejs_24 because the release carries node_modules built here, including
+# prebuilt native binaries, and Carbon runs the server on nodejs_24.
+dependencies:
+  - nodejs_24
+  - openssh
+
+steps:
+  - name: install dependencies
+    command: npm ci
+  - name: build
+    command: npm run build
+  # The server bundle imports from node_modules at runtime, so a release is
+  # client/, server/ and production-only dependencies together.
+  - name: prune dev dependencies
+    command: npm prune --omit=dev
+  - name: package release
+    command: tar -czf release.tgz -C dist client server -C "$PWD" node_modules
+  # Carbon's sshd runs one forced command for this key (see
+  # modules/nixos/services/braxton-is.nix in nixcfg). It reads the revision
+  # from the command and the tarball from stdin, so nothing else is needed.
+  # DEPLOY_SSH_KEY is a repository secret, withheld from fork and approved runs.
+  - name: deploy
+    command: |
+      set -euo pipefail
+      install -m 700 -d ~/.ssh
+      printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+      chmod 600 ~/.ssh/deploy_key
+      # Carbon's host key, from keys/root_carbon.pub in nixcfg. Pinned so a
+      # swapped host cannot receive the build.
+      echo "100.64.2.0 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDqCVxnBi3Yv85dGjk37Uwx8EMogqGQlRS50JxhKysLV" > ~/.ssh/known_hosts
+      ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+        braxton-deploy@100.64.2.0 "deploy $TANGLED_SHA" < release.tgz

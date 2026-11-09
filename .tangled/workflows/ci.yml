@@ -1,0 +1,24 @@
+# Lint, type-check and build, on the spindle at spindle.biscuits.at.
+when:
+  - event: push
+    branch: main
+  - event: pull_request
+    branch: main
+
+engine: microvm
+image: nixos
+
+# The same Node major Carbon runs the site on (nodejs_24 in nixcfg's
+# braxton-is module), so CI builds against the runtime the deploy ships to.
+dependencies:
+  - nodejs_24
+
+steps:
+  - name: install dependencies
+    command: npm ci
+  - name: lint
+    command: npm run lint
+  - name: test
+    command: npm test
+  - name: build
+    command: npm run build
