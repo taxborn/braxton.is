@@ -5,11 +5,55 @@ const TTL_MS = 5 * 60 * 1000;
 type CacheEntry = { value: unknown; expires: number };
 const cache = new Map<string, CacheEntry>();
 
+export type RepoRecord<T> = { uri: string; cid: string; value: T };
+
+/** Read a bounded, newest-first window. Each collection fails independently. */
+export async function listRecords<T>(
+  collection: string,
+  limit = 30,
+  ttlMs = TTL_MS,
+): Promise<RepoRecord<T>[] | null> {
+  return cached(`${collection}/list/${limit}`, ttlMs, async () => {
+    const { records } = await query<{ records: RepoRecord<T>[] }>(
+      "com.atproto.repo.listRecords",
+      { repo: DID, collection, limit: String(limit), reverse: "false" },
+    );
+    return records;
+  });
+}
+
+/** Domain-keyed collections need every page before they can be sorted by date. */
+export async function listAllRecords<T>(
+  collection: string,
+): Promise<RepoRecord<T>[] | null> {
+  return cached(`${collection}/all`, TTL_MS, async () => {
+    const records: RepoRecord<T>[] = [];
+    const cursors = new Set<string>();
+    let cursor: string | undefined;
+    do {
+      const page = await query<{ records: RepoRecord<T>[]; cursor?: string }>(
+        "com.atproto.repo.listRecords",
+        { repo: DID, collection, limit: "100", ...(cursor ? { cursor } : {}) },
+      );
+      records.push(...page.records);
+      cursor = page.cursor;
+      if (cursor && cursors.has(cursor))
+        throw new Error("Repeated pagination cursor");
+      if (cursor) cursors.add(cursor);
+    } while (cursor);
+    return records;
+  });
+}
+
+export function getBlobUrl(cid: string): string {
+  return `${PDS}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: DID, cid })}`;
+}
+
 /**
  * Memoise a PDS read in memory. If the read fails, serves the stale value, or
  * null if there is none.
  */
-async function cached<T>(
+export async function cached<T>(
   key: string,
   ttlMs: number,
   load: () => Promise<T>,
@@ -27,12 +71,13 @@ async function cached<T>(
   }
 }
 
-async function query<T>(
+export async function query<T>(
   method: string,
   params: Record<string, string>,
+  service = PDS,
 ): Promise<T> {
   const res = await fetch(
-    `${PDS}/xrpc/${method}?${new URLSearchParams(params)}`,
+    `${service}/xrpc/${method}?${new URLSearchParams(params)}`,
     { signal: AbortSignal.timeout(3000) },
   );
   if (!res.ok) {

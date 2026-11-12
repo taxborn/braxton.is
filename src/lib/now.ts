@@ -39,7 +39,7 @@ export async function getNow(): Promise<Now | null> {
  * Follow a stateRef to its is.braxton.state record. Only refs into my own repo
  * are followed. The cid is not checked: state records are never edited.
  */
-async function getStateFromRef(ref: unknown): Promise<State | null> {
+export async function getStateFromRef(ref: unknown): Promise<State | null> {
   const uri = (ref as { uri?: unknown } | null)?.uri;
   if (typeof uri !== "string") return null;
   const [, repo, collection, rkey] =
