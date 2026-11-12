@@ -42,15 +42,39 @@ test("ten consecutive commits form one expandable group, newest first", () => {
   assert.equal(cards[0].createdAt.toISOString(), "2026-11-12T12:45:00.000Z");
 });
 
-test("an idle gap over an hour starts a new group; exactly an hour stays together", () => {
-  assert.equal(
-    groupTangledActivity(repo, [event("a", 0), event("b", 60)]).length,
-    1,
+const eventAt = (id, timestamp) => ({
+  ...event(id, 0),
+  createdAt: new Date(timestamp),
+});
+
+test("activity hours apart on one Central calendar day forms one group across UTC midnight", () => {
+  const cards = groupTangledActivity(repo, [
+    eventAt("morning", "2026-11-11T06:00:00Z"),
+    eventAt("evening", "2026-11-12T05:59:59Z"),
+  ]);
+  assert.equal(cards.length, 1);
+  assert.deepEqual(
+    cards[0].items.map((item) => item.id),
+    ["evening", "morning"],
   );
-  assert.equal(
-    groupTangledActivity(repo, [event("a", 0), event("b", 61)]).length,
-    2,
-  );
+  assert.equal(cards[0].createdAt.toISOString(), "2026-11-12T05:59:59.000Z");
+});
+
+test("Central midnight starts a new group even for activity one second apart", () => {
+  for (const [before, after] of [
+    ["2026-11-12T05:59:59Z", "2026-11-12T06:00:00Z"],
+    ["2026-07-12T04:59:59Z", "2026-07-12T05:00:00Z"],
+  ]) {
+    const cards = groupTangledActivity(repo, [
+      eventAt("before", before),
+      eventAt("after", after),
+    ]);
+    assert.equal(cards.length, 2);
+    assert.deepEqual(
+      cards.map((card) => card.items[0].id),
+      ["after", "before"],
+    );
+  }
 });
 
 test("groups combine PRs and commits, deduplicate history, and omit invalid dates", () => {

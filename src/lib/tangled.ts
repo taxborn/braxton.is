@@ -1,7 +1,12 @@
 import { cached, DID, listAllRecords, query } from "./atproto";
 
 const TTL_MS = 5 * 60_000;
-const SESSION_GAP_MS = 60 * 60_000;
+const activityDay = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "America/Chicago",
+});
 const BOBBIN = "https://api.tangled.org";
 
 type Repo = { did: string; name: string; href: string; description?: string };
@@ -151,7 +156,7 @@ async function getCommits(did: string) {
   });
 }
 
-/** Sessions are per repo, with a new group after an hour without activity. */
+/** Group each repo's activity by calendar day in the timeline's Central time. */
 export function groupTangledActivity(
   repo: Repo,
   items: TangledItem[],
@@ -162,11 +167,10 @@ export function groupTangledActivity(
   const cards: TangledCard[] = [];
   for (const item of sorted) {
     const previous = cards.at(-1);
-    const oldest = previous?.items.at(-1);
     if (
       !previous ||
-      !oldest ||
-      oldest.createdAt.getTime() - item.createdAt.getTime() > SESSION_GAP_MS
+      activityDay.format(previous.createdAt) !==
+        activityDay.format(item.createdAt)
     ) {
       cards.push({
         id: `tangled:${repo.did}:${item.id}`,
