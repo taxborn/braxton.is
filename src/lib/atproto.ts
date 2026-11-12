@@ -78,6 +78,17 @@ export async function getRecord<T = Record<string, unknown>>(
   });
 }
 
+/** Read the profile avatar and serve its blob directly from the PDS. */
+export async function getProfileAvatarUrl(): Promise<string | null> {
+  const profile = await getRecord<{
+    avatar?: { ref: { $link: string } };
+  }>("app.bsky.actor.profile");
+  const cid = profile?.avatar?.ref?.$link;
+  if (!cid) return null;
+
+  return `${PDS}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: DID, cid })}`;
+}
+
 /**
  * Fetch the newest record in a collection on my PDS, or null if the collection
  * is empty. "Newest" is the highest record key, which for TID-keyed
