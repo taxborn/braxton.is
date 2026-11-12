@@ -1,0 +1,14 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { timeAgo } from "../lib/format";
+
+interface Props extends HTMLAttributes<"time"> {
+  date: Date;
+}
+
+const { date, ...rest } = Astro.props;
+---
+
+<time datetime={date.toISOString()} title={date.toUTCString()} {...rest}>
+  {timeAgo(date)}
+</time>

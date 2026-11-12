@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import type { TangledCard } from "../lib/tangled";
-import { timeAgo } from "../lib/format";
+import RelativeTime from "./RelativeTime.astro";
 interface Props {
   card: TangledCard;
 }
@@ -49,12 +49,7 @@ const counts = [
               </a>
               <div class="item-meta">
                 <span>{item.detail}</span>
-                <time
-                  datetime={item.createdAt.toISOString()}
-                  title={item.createdAt.toUTCString()}
-                >
-                  {timeAgo(item.createdAt)}
-                </time>
+                <RelativeTime date={item.createdAt} />
               </div>
             </div>
           </li>
