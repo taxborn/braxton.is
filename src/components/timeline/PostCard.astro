@@ -1,0 +1,175 @@
+---
+import { Icon } from "astro-icon/components";
+import TimelineCard from "./TimelineCard.astro";
+import { formatFullDate } from "../../lib/format";
+import type { PostEntry } from "../../lib/timeline";
+
+interface Props {
+  entry: PostEntry;
+}
+
+const { entry } = Astro.props;
+const link = {
+  href: entry.href,
+  label: `Open ${entry.replyHref ? "reply" : "post"} from ${formatFullDate(entry.createdAt)} in Bluesky`,
+};
+---
+
+<TimelineCard entry={entry} link={link}>
+  {entry.replyHref && (
+    <a class="context-link" href={entry.replyHref}>
+      <Icon name="boxicons:reply" aria-hidden="true" /> in reply to a post
+    </a>
+  )}
+  {entry.text.length > 0 && (
+    <p class="record-text">
+      {entry.text.map((part) =>
+        part.href ? (
+          <a href={part.href} rel="ugc">
+            {part.text}
+          </a>
+        ) : (
+          part.text
+        ),
+      )}
+    </p>
+  )}
+  {entry.images.length > 0 && (
+    <div
+      class:list={[
+        "post-images",
+        { "multiple-images": entry.images.length > 1 },
+      ]}
+    >
+      {entry.images.map((image) => (
+        <a href={image.src} aria-label={image.alt || "View full image"}>
+          <img
+            src={image.src}
+            alt={image.alt}
+            width={image.width}
+            height={image.height}
+            loading="lazy"
+          />
+        </a>
+      ))}
+    </div>
+  )}
+  {entry.external && (
+    <a class="link-preview" href={entry.external.uri} rel="ugc">
+      <span class="link-host">
+        {new URL(entry.external.uri).hostname}{" "}
+        <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+      </span>
+      <span class="link-title">
+        {entry.external.title || entry.external.uri}
+      </span>
+      {entry.external.description && (
+        <span class="link-description">{entry.external.description}</span>
+      )}
+    </a>
+  )}
+  {entry.quoteHref && (
+    <a class="context-link quote-link" href={entry.quoteHref}>
+      <Icon name="boxicons:quote-left" aria-hidden="true" /> view quoted post{" "}
+      <span aria-hidden="true">↗</span>
+    </a>
+  )}
+</TimelineCard>
+
+<style>
+  a:hover {
+    color: var(--accent, var(--ctp-mauve));
+  }
+  a:focus-visible {
+    outline: 2px solid var(--ctp-mauve);
+    outline-offset: 4px;
+    border-radius: 0.2rem;
+  }
+  .record-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+  .record-text a {
+    color: var(--ctp-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .context-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    color: var(--ctp-subtext0);
+    margin-bottom: 0.65rem;
+  }
+  .context-link :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .quote-link {
+    margin: 1rem 0 0;
+    padding: 0.65rem 0.85rem;
+    border-left: 2px solid var(--ctp-blue);
+    background: color-mix(in srgb, var(--ctp-blue) 5%, transparent);
+    border-radius: 0 0.4rem 0.4rem 0;
+    display: flex;
+  }
+  .post-images {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    border-radius: 0.6rem;
+    overflow: hidden;
+  }
+  .multiple-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .post-images img {
+    width: 100%;
+    height: auto;
+    max-height: 30rem;
+    object-fit: contain;
+    background: var(--ctp-mantle);
+  }
+  .multiple-images img {
+    height: 100%;
+    max-height: 18rem;
+    object-fit: cover;
+  }
+  .link-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 1rem;
+    padding: 0.85rem;
+    border: 1px solid var(--ctp-surface0);
+    border-radius: 0.6rem;
+    overflow-wrap: anywhere;
+  }
+  .link-host {
+    display: flex;
+    justify-content: space-between;
+    font:
+      0.6rem ui-monospace,
+      monospace;
+    color: var(--ctp-subtext0);
+  }
+  .link-host :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .link-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .link-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--ctp-subtext1);
+    font-size: 0.75rem;
+  }
+</style>

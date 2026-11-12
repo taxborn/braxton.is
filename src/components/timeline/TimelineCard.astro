@@ -1,0 +1,204 @@
+---
+import { Icon } from "astro-icon/components";
+import AturiButton from "./AturiButton.astro";
+import RelativeTime from "../RelativeTime.astro";
+import { formatFullDate, TIME_ZONE } from "../../lib/format";
+import type { TimelineEntry, TimelineKind } from "../../lib/timeline";
+
+interface Props {
+  entry: TimelineEntry;
+  /** A link stretched over the whole card. */
+  link?: { href: string; label: string };
+  /** The content brings its own heading, so the type label is not one. */
+  titled?: boolean;
+}
+
+const { entry, link, titled = false } = Astro.props;
+const labels: Record<TimelineKind, string> = {
+  post: "post",
+  now: "status update",
+  state: "state reading",
+  domain: "domain",
+  repo: "repository created",
+  activity: "code activity",
+};
+const icons: Record<TimelineKind, string> = {
+  post: "simple-icons:bluesky",
+  now: "boxicons:message-circle-dots",
+  state: "boxicons:pulse",
+  domain: "boxicons:globe",
+  repo: "simple-icons:tangled",
+  activity: "boxicons:git-commit",
+};
+const day = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: TIME_ZONE,
+});
+const year = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
+const label = `${labels[entry.kind]} from ${formatFullDate(entry.createdAt)}`;
+const TypeLabel = titled ? "span" : "h3";
+---
+
+<li class:list={["entry", entry.kind]}>
+  <div class="date-label" aria-hidden="true">
+    <span>{day.format(entry.createdAt)}</span>
+    <span>{year.format(entry.createdAt)}</span>
+  </div>
+  <span class="node" aria-hidden="true">
+    <Icon name={icons[entry.kind]} />
+  </span>
+  <article class="record" aria-label={label}>
+    {link && (
+      <a class="post-card-link" href={link.href} aria-label={link.label} />
+    )}
+    <header class="record-heading">
+      <TypeLabel class="record-type">{labels[entry.kind]}</TypeLabel>
+      <div class="record-actions">
+        <RelativeTime date={entry.createdAt} />
+        <AturiButton uri={entry.uri} label={label} />
+      </div>
+    </header>
+    <slot />
+  </article>
+</li>
+
+<style>
+  .entry {
+    --accent: var(--ctp-blue);
+    display: grid;
+    grid-template-columns: 4.5rem 1.5rem minmax(0, 1fr);
+    gap: 1rem;
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  .entry.now {
+    --accent: var(--ctp-mauve);
+  }
+  .entry.state {
+    --accent: var(--ctp-teal);
+  }
+  .entry.domain {
+    --accent: var(--ctp-peach);
+  }
+  .entry.repo {
+    --accent: var(--ctp-green);
+  }
+  .entry.activity {
+    --accent: var(--ctp-lavender);
+  }
+  .date-label {
+    padding-top: 1.15rem;
+    text-align: right;
+    font:
+      0.75rem ui-monospace,
+      monospace;
+    color: var(--ctp-subtext1);
+  }
+  .date-label span {
+    display: block;
+  }
+  .date-label span + span {
+    margin-top: 0.25rem;
+    font-size: 0.6rem;
+    color: var(--ctp-subtext0);
+  }
+  .node {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: 1rem 0 0 -0.125rem;
+    z-index: 1;
+    border-radius: 50%;
+    color: var(--accent);
+    background: var(--ctp-base);
+    box-shadow: 0 0 0 5px var(--ctp-base);
+  }
+  .node :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .record {
+    position: relative;
+    min-width: 0;
+    padding: 1.15rem 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--ctp-base));
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--accent) 3%, var(--ctp-base));
+    box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 6%, transparent);
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .record:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--ctp-base));
+    transform: translateY(-2px);
+  }
+  .post-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .post-card-link:focus-visible {
+    outline: 2px solid var(--ctp-mauve);
+    outline-offset: 4px;
+  }
+  .post .record :global(a:not(.post-card-link)) {
+    position: relative;
+    z-index: 2;
+  }
+  .now .record {
+    border-radius: 0.3rem 1rem 1rem 1rem;
+    background: color-mix(in srgb, var(--accent) 6%, var(--ctp-base));
+  }
+  .state .record {
+    border-style: dashed;
+  }
+  .record-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+  .record-type {
+    color: var(--accent);
+    font:
+      0.65rem ui-monospace,
+      monospace;
+    letter-spacing: 0.04em;
+  }
+  .record-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ctp-subtext0);
+    font-size: 0.65rem;
+  }
+  @media (max-width: 600px) {
+    .entry {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+    .date-label {
+      display: none;
+    }
+    .record {
+      padding: 1rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .record {
+      transition: none;
+    }
+    .record:hover {
+      transform: none;
+    }
+  }
+</style>

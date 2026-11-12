@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import Layout from "../components/Layout.astro";
-import Timeline from "../components/Timeline.astro";
+import Timeline from "../components/timeline/Timeline.astro";
 import { getProfileAvatarUrl, getRecord } from "../lib/atproto";
 
 const [sifaProfile, avatarUrl] = await Promise.all([
