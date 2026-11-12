@@ -15,25 +15,29 @@ function batteryIcon(level: number): string {
 ---
 
 {now && (
-  <p class="inline italic text-subtext1">
+  <p class="inline text-subtext1">
     {now.status}{" "}
     {state && (
-      <span class="inline-flex gap-2 align-middle text-sm not-italic opacity-75">
+      <span class="inline-flex flex-wrap items-baseline gap-1.5 align-baseline text-xs">
         {state.heartRate !== null && (
-          <span class="inline-flex items-center gap-1">
-            <Icon name="boxicons:heart" class="size-3.5" aria-hidden="true" />
-            <span class="sr-only">heart rate</span> {state.heartRate} bpm
+          <span class="inline-flex items-baseline gap-1 whitespace-nowrap rounded-full bg-red/15 px-2 py-0.5 text-red">
+            <Icon name="boxicons:heart" class="size-3.5 self-center" aria-hidden="true" />
+            <span><span class="sr-only">heart rate</span> {state.heartRate} bpm</span>
           </span>
         )}
-        {state.activity && <span>{state.activity}</span>}
+        {state.activity && (
+          <span class="inline-flex items-baseline whitespace-nowrap rounded-full bg-blue/15 px-2 py-0.5 text-blue">
+            {state.activity}
+          </span>
+        )}
         {state.batteryLevel !== null && (
-          <span class="inline-flex items-center gap-1">
+          <span class="inline-flex items-baseline gap-1 whitespace-nowrap rounded-full bg-green/15 px-2 py-0.5 text-green">
             <Icon
               name={batteryIcon(state.batteryLevel)}
-              class="size-3.5"
+              class="size-3.5 self-center"
               aria-hidden="true"
             />
-            <span class="sr-only">phone battery</span> {state.batteryLevel}%
+            <span><span class="sr-only">phone battery</span> {state.batteryLevel}%</span>
           </span>
         )}
       </span>
@@ -42,7 +46,7 @@ function batteryIcon(level: number): string {
       <time
         datetime={now.createdAt.toISOString()}
         title={now.createdAt.toUTCString()}
-        class="opacity-50"
+        class="opacity-50 text-sm"
       >
         {timeAgo(now.createdAt)}
       </time>
