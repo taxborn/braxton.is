@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import seasonScript from "../scripts/season.js?raw";
 import NowStatus from "./NowStatus.astro";
+import NowPlaying from "./NowPlaying.astro";
 ---
 
 <html lang="en">
@@ -28,6 +29,7 @@ import NowStatus from "./NowStatus.astro";
           </a>
           <NowStatus />
         </nav>
+        <NowPlaying />
       </header>
       <main class="flex flex-col py-2">
         <slot />
