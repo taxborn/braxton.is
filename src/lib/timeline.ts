@@ -265,7 +265,7 @@ export async function getTimeline() {
       // otherwise the repository manifest that backs the card.
       uri:
         card.items.find((item) => item.kind === "pull")?.id ??
-        `at://${card.repo.did}/org.tangled.repo.manifest/self`,
+        `${card.repo.did}/org.tangled.repo.manifest/self`,
       kind: card.kind,
       createdAt: card.createdAt,
       href: card.repo.href,

@@ -74,15 +74,15 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
             <a
               class="timestamp"
               href={`https://aturi.to/explore/${entry.uri}`}
-              aria-label={`Explore backing record for ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
+              aria-label={`Open in Aturi: ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
             >
               <time
                 datetime={entry.createdAt.toISOString()}
-                title={`${fullDate.format(entry.createdAt)} (Central time)`}
               >
                 {timeAgo(entry.createdAt)}
               </time>
               <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+              <span class="timestamp-tooltip" aria-hidden="true">Open in Aturi</span>
             </a>
           </header>
           {entry.tangled && <TangledActivity card={entry.tangled} />}
@@ -391,11 +391,31 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
     letter-spacing: 0.04em;
   }
   .timestamp {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
     color: var(--ctp-subtext0);
     font-size: 0.65rem;
+  }
+  .timestamp-tooltip {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 3;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 0.4rem;
+    background: var(--ctp-mantle);
+    color: var(--ctp-text);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    white-space: nowrap;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .timestamp:hover .timestamp-tooltip,
+  .timestamp:focus-visible .timestamp-tooltip {
+    visibility: visible;
   }
   .timestamp :global(svg) {
     width: 0.8rem;
