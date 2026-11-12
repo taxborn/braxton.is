@@ -12,6 +12,8 @@
     "astro": "astro",
     "check": "astro check",
     "lint": "eslint .",
+    "lexicons:check": "node publish-lexicons.js --check",
+    "lexicons:publish": "node publish-lexicons.js",
     "test": "npm run check"
   },
   "dependencies": {
