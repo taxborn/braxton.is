@@ -1,11 +1,12 @@
 import { cached, DID, listAllRecords, query } from "./atproto";
+import { parseDate, TIME_ZONE } from "./format";
 
 const TTL_MS = 5 * 60_000;
 const activityDay = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
-  timeZone: "America/Chicago",
+  timeZone: TIME_ZONE,
 });
 const BOBBIN = "https://api.tangled.org";
 
@@ -47,12 +48,6 @@ type Commit = {
   message: string;
   author: { name: string; when: string };
 };
-
-function parseDate(value: unknown): Date | null {
-  if (typeof value !== "string") return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
 
 function repoUrl(owner: string, name: string): string {
   return `https://tangled.org/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;

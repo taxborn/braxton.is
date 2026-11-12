@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
-import { getNow, timeAgo } from "../lib/now";
+import { timeAgo } from "../lib/format";
+import { getNow } from "../lib/now";
 
 const now = await getNow();
 const state = now?.state;
