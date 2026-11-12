@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-import seasonScript from "../scripts/season.js?raw";
 import NowStatus from "./NowStatus.astro";
 import NowPlaying from "./NowPlaying.astro";
 ---
@@ -14,7 +13,6 @@ import NowPlaying from "./NowPlaying.astro";
     <meta name="description" content="braxton's digital garden" />
     <meta name="generator" content={Astro.generator} />
     <title>braxton.is working</title>
-    <script is:inline set:html={seasonScript} />
     <link
       rel="site.standard.document"
       href="at://did:plc:2grdruc2p6fjhksrfpt366yl/site.standard.publication/3myqlk77shz22"

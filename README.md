@@ -4,7 +4,9 @@ my personal website
 
 ## Color scheme / theme
 
-[Evergarden](https://evergarden.moe) - `curl -L evergarden.moe`
+[Catppuccin](https://github.com/catppuccin/palette), using Mocha for dark mode
+and Latte for light mode. The theme follows the visitor's system preference
+through CSS, without JavaScript.
 
 ## Status
 

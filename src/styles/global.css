@@ -1,36 +1,32 @@
 @import "tailwindcss";
 @import "./palette.css";
 
-/*
- * Exposes the evergarden palette (palette.css) to Tailwind under its own names:
- * bg-base, text-text, text-subtext1, border-surface1, text-blue, etc.
- * See https://codeberg.org/evergarden/evergarden docs/style-guide.md for what
- * each color is for (blue = links, subtext0 = ui text, overlay1 = descriptions,
- * overlay0 = separators).
- */
+/* Expose Catppuccin colors as Tailwind utilities, e.g. bg-base and text-blue. */
 @theme inline {
-  --color-red: var(--ev-red);
-  --color-orange: var(--ev-orange);
-  --color-yellow: var(--ev-yellow);
-  --color-lime: var(--ev-lime);
-  --color-green: var(--ev-green);
-  --color-aqua: var(--ev-aqua);
-  --color-skye: var(--ev-skye);
-  --color-snow: var(--ev-snow);
-  --color-blue: var(--ev-blue);
-  --color-purple: var(--ev-purple);
-  --color-pink: var(--ev-pink);
-  --color-cherry: var(--ev-cherry);
-  --color-text: var(--ev-text);
-  --color-subtext1: var(--ev-subtext1);
-  --color-subtext0: var(--ev-subtext0);
-  --color-overlay2: var(--ev-overlay2);
-  --color-overlay1: var(--ev-overlay1);
-  --color-overlay0: var(--ev-overlay0);
-  --color-surface2: var(--ev-surface2);
-  --color-surface1: var(--ev-surface1);
-  --color-surface0: var(--ev-surface0);
-  --color-base: var(--ev-base);
-  --color-mantle: var(--ev-mantle);
-  --color-crust: var(--ev-crust);
+  --color-rosewater: var(--ctp-rosewater);
+  --color-flamingo: var(--ctp-flamingo);
+  --color-pink: var(--ctp-pink);
+  --color-mauve: var(--ctp-mauve);
+  --color-red: var(--ctp-red);
+  --color-maroon: var(--ctp-maroon);
+  --color-peach: var(--ctp-peach);
+  --color-yellow: var(--ctp-yellow);
+  --color-green: var(--ctp-green);
+  --color-teal: var(--ctp-teal);
+  --color-sky: var(--ctp-sky);
+  --color-sapphire: var(--ctp-sapphire);
+  --color-blue: var(--ctp-blue);
+  --color-lavender: var(--ctp-lavender);
+  --color-text: var(--ctp-text);
+  --color-subtext1: var(--ctp-subtext1);
+  --color-subtext0: var(--ctp-subtext0);
+  --color-overlay2: var(--ctp-overlay2);
+  --color-overlay1: var(--ctp-overlay1);
+  --color-overlay0: var(--ctp-overlay0);
+  --color-surface2: var(--ctp-surface2);
+  --color-surface1: var(--ctp-surface1);
+  --color-surface0: var(--ctp-surface0);
+  --color-base: var(--ctp-base);
+  --color-mantle: var(--ctp-mantle);
+  --color-crust: var(--ctp-crust);
 }

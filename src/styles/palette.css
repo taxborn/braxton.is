@@ -1,119 +1,68 @@
 /*
- * evergarden (https://codeberg.org/evergarden/palette), one flavor per season.
- * Generated from palette.json. The active season is set on <html data-season>
- * by src/scripts/season.js.
+ * Catppuccin (https://github.com/catppuccin/palette), palette.json v1.8.0.
+ * Latte for light mode and Mocha for dark mode, following system preference.
  */
 
-/* fall is the default, used until/unless the script runs */
-:root,
-[data-season="fall"] {
-  color-scheme: dark;
-  --ev-red: #f57f82;
-  --ev-orange: #f7a182;
-  --ev-yellow: #f5d098;
-  --ev-lime: #dbe6af;
-  --ev-green: #cbe3b3;
-  --ev-aqua: #b3e3ca;
-  --ev-skye: #b3e6db;
-  --ev-snow: #afd9e6;
-  --ev-blue: #b2caed;
-  --ev-purple: #d2bdf3;
-  --ev-pink: #f3c0e5;
-  --ev-cherry: #fae6ef;
-  --ev-text: #f8f9e8;
-  --ev-subtext1: #adc9bc;
-  --ev-subtext0: #96b4aa;
-  --ev-overlay2: #839e9a;
-  --ev-overlay1: #6f8788;
-  --ev-overlay0: #58686d;
-  --ev-surface2: #4a585c;
-  --ev-surface1: #374145;
-  --ev-surface0: #2b3337;
-  --ev-base: #232a2e;
-  --ev-mantle: #1c2225;
-  --ev-crust: #171c1f;
-}
-
-[data-season="spring"] {
-  color-scheme: dark;
-  --ev-red: #f57f82;
-  --ev-orange: #f7a182;
-  --ev-yellow: #f5d098;
-  --ev-lime: #dbe6af;
-  --ev-green: #cbe3b3;
-  --ev-aqua: #b3e3ca;
-  --ev-skye: #b3e6db;
-  --ev-snow: #afd9e6;
-  --ev-blue: #b2caed;
-  --ev-purple: #d2bdf3;
-  --ev-pink: #f3c0e5;
-  --ev-cherry: #fae6ef;
-  --ev-text: #f8f9e8;
-  --ev-subtext1: #adc9bc;
-  --ev-subtext0: #96b4aa;
-  --ev-overlay2: #839e9a;
-  --ev-overlay1: #6f8788;
-  --ev-overlay0: #58686d;
-  --ev-surface2: #4a585c;
-  --ev-surface1: #3e4a4f;
-  --ev-surface0: #343e43;
-  --ev-base: #2b3438;
-  --ev-mantle: #232a2e;
-  --ev-crust: #1c2225;
-}
-
-[data-season="summer"] {
+/* Latte */
+:root {
   color-scheme: light;
-  --ev-red: #c58687;
-  --ev-orange: #c69883;
-  --ev-yellow: #c4aa80;
-  --ev-lime: #abb182;
-  --ev-green: #91a77a;
-  --ev-aqua: #74a48b;
-  --ev-skye: #719f96;
-  --ev-snow: #7799a3;
-  --ev-blue: #8294ad;
-  --ev-purple: #a897b8;
-  --ev-pink: #c499b8;
-  --ev-cherry: #c29fb2;
-  --ev-text: #2b3034;
-  --ev-subtext1: #455355;
-  --ev-subtext0: #576869;
-  --ev-overlay2: #707d76;
-  --ev-overlay1: #829084;
-  --ev-overlay0: #acb5a4;
-  --ev-surface2: #ceccbd;
-  --ev-surface1: #e6e1d3;
-  --ev-surface0: #ede8dd;
-  --ev-base: #f5efe6;
-  --ev-mantle: #f2eae1;
-  --ev-crust: #e8ded5;
+  --ctp-rosewater: #dc8a78;
+  --ctp-flamingo: #dd7878;
+  --ctp-pink: #ea76cb;
+  --ctp-mauve: #8839ef;
+  --ctp-red: #d20f39;
+  --ctp-maroon: #e64553;
+  --ctp-peach: #fe640b;
+  --ctp-yellow: #df8e1d;
+  --ctp-green: #40a02b;
+  --ctp-teal: #179299;
+  --ctp-sky: #04a5e5;
+  --ctp-sapphire: #209fb5;
+  --ctp-blue: #1e66f5;
+  --ctp-lavender: #7287fd;
+  --ctp-text: #4c4f69;
+  --ctp-subtext1: #5c5f77;
+  --ctp-subtext0: #6c6f85;
+  --ctp-overlay2: #7c7f93;
+  --ctp-overlay1: #8c8fa1;
+  --ctp-overlay0: #9ca0b0;
+  --ctp-surface2: #acb0be;
+  --ctp-surface1: #bcc0cc;
+  --ctp-surface0: #ccd0da;
+  --ctp-base: #eff1f5;
+  --ctp-mantle: #e6e9ef;
+  --ctp-crust: #dce0e8;
 }
 
-[data-season="winter"] {
-  color-scheme: dark;
-  --ev-red: #f57f82;
-  --ev-orange: #f7a182;
-  --ev-yellow: #f5d098;
-  --ev-lime: #dbe6af;
-  --ev-green: #cbe3b3;
-  --ev-aqua: #b3e3ca;
-  --ev-skye: #b3e6db;
-  --ev-snow: #afd9e6;
-  --ev-blue: #b2caed;
-  --ev-purple: #d2bdf3;
-  --ev-pink: #f3c0e5;
-  --ev-cherry: #fae6ef;
-  --ev-text: #f8f9e8;
-  --ev-subtext1: #adc9bc;
-  --ev-subtext0: #96b4aa;
-  --ev-overlay2: #839e9a;
-  --ev-overlay1: #6f8788;
-  --ev-overlay0: #58686d;
-  --ev-surface2: #4a585c;
-  --ev-surface1: #374145;
-  --ev-surface0: #262f33;
-  --ev-base: #1e2528;
-  --ev-mantle: #191e21;
-  --ev-crust: #171c1f;
+/* Mocha */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --ctp-rosewater: #f5e0dc;
+    --ctp-flamingo: #f2cdcd;
+    --ctp-pink: #f5c2e7;
+    --ctp-mauve: #cba6f7;
+    --ctp-red: #f38ba8;
+    --ctp-maroon: #eba0ac;
+    --ctp-peach: #fab387;
+    --ctp-yellow: #f9e2af;
+    --ctp-green: #a6e3a1;
+    --ctp-teal: #94e2d5;
+    --ctp-sky: #89dceb;
+    --ctp-sapphire: #74c7ec;
+    --ctp-blue: #89b4fa;
+    --ctp-lavender: #b4befe;
+    --ctp-text: #cdd6f4;
+    --ctp-subtext1: #bac2de;
+    --ctp-subtext0: #a6adc8;
+    --ctp-overlay2: #9399b2;
+    --ctp-overlay1: #7f849c;
+    --ctp-overlay0: #6c7086;
+    --ctp-surface2: #585b70;
+    --ctp-surface1: #45475a;
+    --ctp-surface0: #313244;
+    --ctp-base: #1e1e2e;
+    --ctp-mantle: #181825;
+    --ctp-crust: #11111b;
+  }
 }
