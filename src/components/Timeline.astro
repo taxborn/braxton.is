@@ -4,7 +4,7 @@ import StateReadout from "./StateReadout.astro";
 import TangledActivity from "./TangledActivity.astro";
 import AturiButton from "./AturiButton.astro";
 import { getTimeline } from "../lib/timeline";
-import { timeAgo } from "../lib/now";
+import { TIME_ZONE, timeAgo } from "../lib/format";
 
 const { entries, unavailable } = await getTimeline();
 const labels = {
@@ -26,24 +26,22 @@ const icons = {
 const day = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
-  timeZone: "America/Chicago",
+  timeZone: TIME_ZONE,
 });
 const year = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
-  timeZone: "America/Chicago",
+  timeZone: TIME_ZONE,
 });
 const fullDate = new Intl.DateTimeFormat("en-US", {
   dateStyle: "full",
   timeStyle: "short",
-  timeZone: "America/Chicago",
+  timeZone: TIME_ZONE,
 });
 ---
 
 <section class="timeline" aria-labelledby="timeline-title">
   <header class="timeline-heading">
-    <div>
-      <h2 id="timeline-title">atproto records</h2>
-    </div>
+    <h2 id="timeline-title">atproto records</h2>
   </header>
 
   {unavailable && (
@@ -208,7 +206,6 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
 
 <style>
   .timeline {
-    display: block;
     max-width: 56rem;
     width: 100%;
   }
@@ -225,9 +222,6 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
     letter-spacing: -0.06em;
     line-height: 1.1;
     margin-top: 0.4rem;
-  }
-  h2 > span {
-    color: var(--ctp-mauve);
   }
   .entries {
     position: relative;

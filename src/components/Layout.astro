@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import NowStatus from "./NowStatus.astro";
 import NowPlaying from "./NowPlaying.astro";
+import { DID } from "../lib/atproto";
 ---
 
 <html lang="en">
@@ -15,7 +16,7 @@ import NowPlaying from "./NowPlaying.astro";
     <title>braxton.is working</title>
     <link
       rel="site.standard.document"
-      href="at://did:plc:2grdruc2p6fjhksrfpt366yl/site.standard.publication/3myqlk77shz22"
+      href={`at://${DID}/site.standard.publication/3myqlk77shz22`}
     />
     <link rel="me" href="https://sifa.id/p/braxton.is" />
   </head>

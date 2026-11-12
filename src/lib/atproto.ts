@@ -129,9 +129,7 @@ export async function getProfileAvatarUrl(): Promise<string | null> {
     avatar?: { ref: { $link: string } };
   }>("app.bsky.actor.profile");
   const cid = profile?.avatar?.ref?.$link;
-  if (!cid) return null;
-
-  return `${PDS}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: DID, cid })}`;
+  return cid ? getBlobUrl(cid) : null;
 }
 
 /**

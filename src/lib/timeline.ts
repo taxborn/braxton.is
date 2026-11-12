@@ -7,6 +7,7 @@ import type {
 } from "@atproto/api";
 import { parseAtUri, WAYPOINT_DESTINATIONS_DATA } from "@aturi.to/waypoints";
 import { getBlobUrl, listAllRecords, listRecords } from "./atproto";
+import { parseDate } from "./format";
 import { getStateFromRef, parseState, type State } from "./now";
 import { getTangledTimeline, type TangledCard } from "./tangled";
 
@@ -128,12 +129,6 @@ export function postText(record: AppBskyFeedPost.Record): TextPart[] {
   return parts;
 }
 
-function date(value: unknown): Date | null {
-  if (typeof value !== "string") return null;
-  const result = new Date(value);
-  return Number.isNaN(result.getTime()) ? null : result;
-}
-
 function postMedia(record: AppBskyFeedPost.Record) {
   let embed = record.embed;
   let quoteHref: string | undefined;
@@ -188,7 +183,7 @@ export async function getTimeline() {
   );
   const nowEntries = await Promise.all(
     (statuses ?? []).map(async ({ uri, value }) => {
-      const createdAt = date(value.createdAt);
+      const createdAt = parseDate(value.createdAt);
       if (
         !createdAt ||
         typeof value.status !== "string" ||
@@ -214,7 +209,7 @@ export async function getTimeline() {
   );
   for (const entry of nowEntries) if (entry) entries.push(entry);
   for (const { uri, value } of states ?? []) {
-    const createdAt = date(value.createdAt);
+    const createdAt = parseDate(value.createdAt);
     const state = parseState(value);
     if (!createdAt || !state || linkedStates.has(uri)) continue;
     entries.push({
@@ -228,7 +223,7 @@ export async function getTimeline() {
     });
   }
   for (const { uri, value } of posts ?? []) {
-    const createdAt = date(value.createdAt);
+    const createdAt = parseDate(value.createdAt);
     const href = postUrl(uri);
     if (!createdAt || !href || typeof value.text !== "string") continue;
     entries.push({
@@ -243,7 +238,7 @@ export async function getTimeline() {
     });
   }
   for (const { uri, value } of domains ?? []) {
-    const createdAt = date(value.createdAt);
+    const createdAt = parseDate(value.createdAt);
     const name =
       typeof value.domain === "string" ? value.domain.trim().toLowerCase() : "";
     // A domain must be a hostname, with no URL path, credentials, or port.
