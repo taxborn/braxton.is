@@ -1,0 +1,20 @@
+---
+import { getNow, timeAgo } from "../lib/now";
+
+const now = await getNow();
+---
+
+{now && (
+  <p class="inline italic text-subtext1">
+    {now.status}{" "}
+    {now.createdAt && (
+      <time
+        datetime={now.createdAt.toISOString()}
+        title={now.createdAt.toUTCString()}
+        class="opacity-50"
+      >
+        {timeAgo(now.createdAt)}
+      </time>
+    )}
+  </p>
+)}
