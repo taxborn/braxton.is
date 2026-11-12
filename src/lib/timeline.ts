@@ -5,7 +5,8 @@ import type {
   AppBskyEmbedRecord,
   AppBskyEmbedRecordWithMedia,
 } from "@atproto/api";
-import { DID, getBlobUrl, listAllRecords, listRecords } from "./atproto";
+import { parseAtUri, WAYPOINT_DESTINATIONS_DATA } from "@aturi.to/waypoints";
+import { getBlobUrl, listAllRecords, listRecords } from "./atproto";
 import { getStateFromRef, parseState, type State } from "./now";
 import { getTangledTimeline, type TangledCard } from "./tangled";
 
@@ -62,6 +63,20 @@ export function postUrl(uri: string): string | undefined {
   return match
     ? `https://bsky.app/profile/${encodeURIComponent(match[1]).replace(/%3A/g, ":")}/post/${encodeURIComponent(match[2])}`
     : undefined;
+}
+
+/** Explorer paths use repo/collection/rkey, without the AT URI scheme. */
+export function aturiUrl(uri: string): string {
+  const parsed = parseAtUri(uri)?.parsed;
+  if (!parsed) throw new Error(`Invalid AT URI: ${uri}`);
+  const url = WAYPOINT_DESTINATIONS_DATA.aturiExplore.getUrl(
+    parsed.handle,
+    parsed.collection,
+    parsed.rkey,
+    parsed.did,
+  );
+  if (!url) throw new Error(`Cannot build Aturi explorer link: ${uri}`);
+  return url;
 }
 
 /** Facet offsets count UTF-8 bytes, rather than JavaScript characters. */
@@ -190,7 +205,7 @@ export async function getTimeline() {
         uri,
         kind: "now" as const,
         createdAt,
-        href: `https://aturi.to/explore/${DID}/is.braxton.now/${encodeURIComponent(uri.split("/").at(-1)!)}`,
+        href: aturiUrl(uri),
         text: [{ text: value.status.trim() }],
         state,
         images: [],
@@ -206,7 +221,7 @@ export async function getTimeline() {
       uri,
       kind: "state",
       createdAt,
-      href: `https://aturi.to/explore/${DID}/is.braxton.state/${encodeURIComponent(uri.split("/").at(-1)!)}`,
+      href: aturiUrl(uri),
       text: [],
       state,
       images: [],
@@ -243,7 +258,7 @@ export async function getTimeline() {
       uri,
       kind: "domain",
       createdAt,
-      href: `https://aturi.to/explore/${uri}`,
+      href: aturiUrl(uri),
       text: [],
       state: null,
       images: [],
@@ -265,7 +280,7 @@ export async function getTimeline() {
       // otherwise the repository manifest that backs the card.
       uri:
         card.items.find((item) => item.kind === "pull")?.id ??
-        `${card.repo.did}/org.tangled.repo.manifest/self`,
+        `at://${card.repo.did}/org.tangled.repo.manifest/self`,
       kind: card.kind,
       createdAt: card.createdAt,
       href: card.repo.href,

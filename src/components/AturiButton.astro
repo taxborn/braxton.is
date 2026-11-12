@@ -1,0 +1,66 @@
+---
+import { aturiExploreIconSvg } from "@aturi.to/waypoints/icons";
+import { aturiUrl } from "../lib/timeline";
+
+interface Props {
+  uri: string;
+  label: string;
+}
+
+const { uri, label } = Astro.props;
+---
+
+<a class="aturi-button" href={aturiUrl(uri)} aria-label={`Open in Aturi: ${label}`}>
+  <span class="aturi-icon" aria-hidden="true" set:html={aturiExploreIconSvg} />
+  <span class="tooltip" aria-hidden="true">Open in Aturi</span>
+</a>
+
+<style>
+  .aturi-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 0.4rem;
+    color: var(--ctp-subtext0);
+    background: var(--ctp-base);
+  }
+  .aturi-button:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .aturi-button:focus-visible {
+    outline: 2px solid var(--ctp-mauve);
+    outline-offset: 4px;
+  }
+  .aturi-icon {
+    display: inline-flex;
+  }
+  .aturi-icon :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 3;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 0.4rem;
+    background: var(--ctp-mantle);
+    color: var(--ctp-text);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    font-size: 0.65rem;
+    white-space: nowrap;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .aturi-button:hover .tooltip,
+  .aturi-button:focus-visible .tooltip {
+    visibility: visible;
+  }
+</style>

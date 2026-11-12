@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^11.1.9",
+    "@aturi.to/waypoints": "^0.1.4",
     "@iconify-json/boxicons": "^1.2.0",
     "@iconify-json/simple-icons": "^1.2.100",
     "@tailwindcss/vite": "^4.3.3",

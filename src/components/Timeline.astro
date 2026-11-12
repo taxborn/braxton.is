@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import StateReadout from "./StateReadout.astro";
 import TangledActivity from "./TangledActivity.astro";
+import AturiButton from "./AturiButton.astro";
 import { getTimeline } from "../lib/timeline";
 import { timeAgo } from "../lib/now";
 
@@ -71,19 +72,17 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
           )}
           <header class="record-heading">
             <span class="record-type">{labels[entry.kind]}</span>
-            <a
-              class="timestamp"
-              href={`https://aturi.to/explore/${entry.uri}`}
-              aria-label={`Open in Aturi: ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
-            >
+            <div class="record-actions">
               <time
                 datetime={entry.createdAt.toISOString()}
               >
                 {timeAgo(entry.createdAt)}
               </time>
-              <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
-              <span class="timestamp-tooltip" aria-hidden="true">Open in Aturi</span>
-            </a>
+              <AturiButton
+                uri={entry.uri}
+                label={`${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
+              />
+            </div>
           </header>
           {entry.tangled && <TangledActivity card={entry.tangled} />}
           {entry.domain && (
@@ -364,7 +363,7 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
   .post-card-link:focus-visible {
     border-radius: inherit;
   }
-  .post .record a:not(.post-card-link) {
+  .post .record :global(a:not(.post-card-link)) {
     position: relative;
     z-index: 2;
   }
@@ -390,36 +389,12 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
       monospace;
     letter-spacing: 0.04em;
   }
-  .timestamp {
-    position: relative;
+  .record-actions {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
     color: var(--ctp-subtext0);
     font-size: 0.65rem;
-  }
-  .timestamp-tooltip {
-    position: absolute;
-    bottom: calc(100% + 0.5rem);
-    right: 0;
-    z-index: 3;
-    padding: 0.4rem 0.6rem;
-    border: 1px solid var(--ctp-surface1);
-    border-radius: 0.4rem;
-    background: var(--ctp-mantle);
-    color: var(--ctp-text);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-    white-space: nowrap;
-    pointer-events: none;
-    visibility: hidden;
-  }
-  .timestamp:hover .timestamp-tooltip,
-  .timestamp:focus-visible .timestamp-tooltip {
-    visibility: visible;
-  }
-  .timestamp :global(svg) {
-    width: 0.8rem;
-    height: 0.8rem;
   }
   a:hover {
     color: var(--accent, var(--ctp-mauve));
