@@ -62,12 +62,19 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
           <Icon name={icons[entry.kind]} />
         </span>
         <article class="record" aria-label={labels[entry.kind]}>
+          {entry.kind === "post" && (
+            <a
+              class="post-card-link"
+              href={entry.href}
+              aria-label={`Open ${entry.replyHref ? "reply" : "post"} from ${fullDate.format(entry.createdAt)} in Bluesky`}
+            />
+          )}
           <header class="record-heading">
             <span class="record-type">{labels[entry.kind]}</span>
             <a
               class="timestamp"
-              href={entry.href}
-              aria-label={`View ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
+              href={`https://aturi.to/explore/${entry.uri}`}
+              aria-label={`Explore backing record for ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
             >
               <time
                 datetime={entry.createdAt.toISOString()}
@@ -185,11 +192,6 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
             <a class="context-link quote-link" href={entry.quoteHref}>
               <Icon name="boxicons:quote-left" aria-hidden="true" /> view quoted
               post <span aria-hidden="true">↗</span>
-            </a>
-          )}
-          {entry.kind === "post" && (
-            <a class="post-footer" href={entry.href}>
-              open in bluesky <span aria-hidden="true">↗</span>
             </a>
           )}
         </article>
@@ -338,6 +340,7 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
     height: 0.9rem;
   }
   .record {
+    position: relative;
     min-width: 0;
     padding: 1.15rem 1.35rem;
     border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--ctp-base));
@@ -351,6 +354,19 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
   .record:hover {
     border-color: color-mix(in srgb, var(--accent) 45%, var(--ctp-base));
     transform: translateY(-2px);
+  }
+  .post-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .post-card-link:focus-visible {
+    border-radius: inherit;
+  }
+  .post .record a:not(.post-card-link) {
+    position: relative;
+    z-index: 2;
   }
   .now .record {
     border-radius: 0.3rem 1rem 1rem 1rem;
@@ -502,14 +518,6 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
     overflow: hidden;
     color: var(--ctp-subtext1);
     font-size: 0.75rem;
-  }
-  .post-footer {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 1rem;
-    font-size: 0.65rem;
-    color: var(--ctp-subtext0);
   }
   .notice,
   .empty {

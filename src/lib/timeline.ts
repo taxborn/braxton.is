@@ -60,7 +60,7 @@ export function webUrl(value: string): string | undefined {
 export function postUrl(uri: string): string | undefined {
   const match = uri.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)$/);
   return match
-    ? `https://bsky.app/profile/${encodeURIComponent(match[1])}/post/${encodeURIComponent(match[2])}`
+    ? `https://bsky.app/profile/${encodeURIComponent(match[1]).replace(/%3A/g, ":")}/post/${encodeURIComponent(match[2])}`
     : undefined;
 }
 
@@ -261,7 +261,11 @@ export async function getTimeline() {
   }
   for (const card of tangled.cards) {
     entries.push({
-      uri: card.id,
+      // Daily activity has no record of its own. Explore a ticket when present,
+      // otherwise the repository manifest that backs the card.
+      uri:
+        card.items.find((item) => item.kind === "pull")?.id ??
+        `at://${card.repo.did}/org.tangled.repo.manifest/self`,
       kind: card.kind,
       createdAt: card.createdAt,
       href: card.repo.href,
