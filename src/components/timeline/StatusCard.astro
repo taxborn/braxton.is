@@ -1,0 +1,32 @@
+---
+import StateReadout from "./StateReadout.astro";
+import TimelineCard from "./TimelineCard.astro";
+import type { StatusEntry } from "../../lib/timeline";
+
+interface Props {
+  entry: StatusEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<TimelineCard entry={entry}>
+  <p class="status-prefix">braxton.is</p>
+  <p class="status-text">{entry.status}</p>
+  {entry.state && <StateReadout state={entry.state} />}
+</TimelineCard>
+
+<style>
+  .status-prefix {
+    color: var(--ctp-subtext0);
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+  .status-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+</style>

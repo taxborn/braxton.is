@@ -1,0 +1,43 @@
+---
+import StateReadout from "./StateReadout.astro";
+import TimelineCard from "./TimelineCard.astro";
+import type { StateEntry } from "../../lib/timeline";
+
+interface Props {
+  entry: StateEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<TimelineCard entry={entry} titled>
+  <h3 class="state-title">
+    a moment in numbers{" "}
+    <svg viewBox="0 0 100 24" fill="none" aria-hidden="true">
+      <path
+        d="M0 12h25l7-5 8 15 10-21 8 15 6-4h36"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </h3>
+  <StateReadout state={entry.state} />
+</TimelineCard>
+
+<style>
+  .state-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+  }
+  .state-title svg {
+    width: 5rem;
+    height: 1.5rem;
+    color: var(--ctp-teal);
+    flex-shrink: 0;
+  }
+</style>

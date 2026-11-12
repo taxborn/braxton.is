@@ -1,0 +1,80 @@
+---
+import { Icon } from "astro-icon/components";
+import TimelineCard from "./TimelineCard.astro";
+import type { DomainEntry } from "../../lib/timeline";
+
+interface Props {
+  entry: DomainEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<TimelineCard entry={entry} titled>
+  <h3>
+    <a class="domain-name" href={entry.href}>
+      {entry.name}
+      <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+    </a>
+  </h3>
+  <div class="domain-meta">
+    <a href="https://marque.at/">marque.at</a>
+    {entry.status && (
+      <span>
+        {entry.status === "transferPending" ? "transfer pending" : entry.status}
+      </span>
+    )}
+    {entry.verifiedHandle && (
+      <span title={`Verified handle: @${entry.verifiedHandle}`}>
+        <Icon name="boxicons:check-circle" aria-hidden="true" /> verified handle
+      </span>
+    )}
+  </div>
+</TimelineCard>
+
+<style>
+  a:hover {
+    color: var(--accent, var(--ctp-mauve));
+  }
+  a:focus-visible {
+    outline: 2px solid var(--ctp-mauve);
+    outline-offset: 4px;
+    border-radius: 0.2rem;
+  }
+  .domain-name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+  }
+  .domain-name :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+  .domain-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--ctp-subtext1);
+  }
+  .domain-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .domain-meta :global(svg) {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+</style>

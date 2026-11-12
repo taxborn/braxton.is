@@ -1,11 +1,15 @@
 ---
 import { Icon } from "astro-icon/components";
-import type { TangledCard } from "../lib/tangled";
-import RelativeTime from "./RelativeTime.astro";
+import RelativeTime from "../RelativeTime.astro";
+import TimelineCard from "./TimelineCard.astro";
+import type { TangledEntry } from "../../lib/timeline";
+
 interface Props {
-  card: TangledCard;
+  entry: TangledEntry;
 }
-const { card } = Astro.props;
+
+const { entry } = Astro.props;
+const { card } = entry;
 const commits = card.items.filter((item) => item.kind === "commit").length;
 const pulls = card.items.filter((item) => item.kind === "pull").length;
 const counts = [
@@ -16,11 +20,13 @@ const counts = [
   .join(" · ");
 ---
 
-<div class="tangled-activity">
-  <a class="repo-name" href={card.repo.href}>
-    {card.repo.name}
-    <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
-  </a>
+<TimelineCard entry={entry} titled>
+  <h3>
+    <a class="repo-name" href={card.repo.href}>
+      {card.repo.name}
+      <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+    </a>
+  </h3>
   {card.kind === "repo" && card.repo.description && (
     <p class="repo-description">{card.repo.description}</p>
   )}
@@ -57,7 +63,7 @@ const counts = [
       </ol>
     </details>
   )}
-</div>
+</TimelineCard>
 
 <style>
   .repo-name {

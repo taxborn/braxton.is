@@ -14,8 +14,9 @@
     "lint": "eslint .",
     "lexicons:check": "node publish-lexicons.js --check",
     "lexicons:publish": "node publish-lexicons.js",
-    "test": "npm run check && npm run test:tangled",
-    "test:tangled": "node tests/tangled.test.mjs"
+    "test": "npm run check && npm run test:tangled && npm run test:timeline",
+    "test:tangled": "node tests/tangled.test.mjs",
+    "test:timeline": "node tests/timeline.test.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.9",

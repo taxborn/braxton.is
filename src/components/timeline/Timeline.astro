@@ -1,0 +1,93 @@
+---
+import DomainCard from "./DomainCard.astro";
+import PostCard from "./PostCard.astro";
+import StateCard from "./StateCard.astro";
+import StatusCard from "./StatusCard.astro";
+import TangledActivity from "./TangledActivity.astro";
+import { getTimeline } from "../../lib/timeline";
+
+const { entries, unavailable } = await getTimeline();
+---
+
+<section class="timeline" aria-labelledby="timeline-title">
+  <h2 id="timeline-title">atproto records</h2>
+
+  {unavailable && (
+    <p class="notice">
+      Some records couldn't be reached. Here's what's available for now.
+    </p>
+  )}
+
+  <ol class="entries">
+    {entries.map((entry) => {
+      switch (entry.kind) {
+        case "post":
+          return <PostCard entry={entry} />;
+        case "now":
+          return <StatusCard entry={entry} />;
+        case "state":
+          return <StateCard entry={entry} />;
+        case "domain":
+          return <DomainCard entry={entry} />;
+        default:
+          return <TangledActivity entry={entry} />;
+      }
+    })}
+  </ol>
+  {entries.length === 0 && (
+    <p class="empty" role="status">
+      {unavailable
+        ? "The timeline is taking a breather. Check back soon."
+        : "Nothing here yet. More soon."}
+    </p>
+  )}
+</section>
+
+<style>
+  .timeline {
+    max-width: 56rem;
+    width: 100%;
+  }
+  h2 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1.1;
+    margin: 0.4rem 0 1.5rem;
+  }
+  .entries {
+    position: relative;
+    list-style: none;
+    padding: 0;
+  }
+  .entries::before {
+    content: "";
+    position: absolute;
+    left: 6.25rem;
+    top: 1.3rem;
+    bottom: 0;
+    width: 1px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--ctp-surface1) 0 4px,
+      transparent 4px 9px
+    );
+  }
+  .notice,
+  .empty {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+    background: var(--ctp-mantle);
+    font-size: 0.85rem;
+    color: var(--ctp-subtext1);
+  }
+  @media (max-width: 600px) {
+    .timeline {
+      margin-top: 3rem;
+    }
+    .entries::before {
+      left: 0.75rem;
+    }
+  }
+</style>

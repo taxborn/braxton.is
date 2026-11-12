@@ -6,34 +6,49 @@ import type {
   AppBskyEmbedRecordWithMedia,
 } from "@atproto/api";
 import { parseAtUri, WAYPOINT_DESTINATIONS_DATA } from "@aturi.to/waypoints";
-import { getBlobUrl, listAllRecords, listRecords } from "./atproto";
+import {
+  getBlobUrl,
+  listAllRecords,
+  listRecords,
+  type RepoRecord,
+} from "./atproto";
 import { parseDate } from "./format";
 import { getStateFromRef, parseState, type State } from "./now";
 import { getTangledTimeline, type TangledCard } from "./tangled";
 
-export type TimelineKind =
-  "post" | "now" | "state" | "domain" | "repo" | "activity";
 export type TextPart = { text: string; href?: string };
 type Image = { src: string; alt: string; width?: number; height?: number };
-export type TimelineEntry = {
-  uri: string;
-  kind: TimelineKind;
-  createdAt: Date;
+type Base = { uri: string; createdAt: Date };
+export type PostEntry = Base & {
+  kind: "post";
   href: string;
   text: TextPart[];
-  state: State | null;
   images: Image[];
   external?: { uri: string; title: string; description: string };
   quoteHref?: string;
   replyHref?: string;
-  domain?: {
-    name: string;
-    href: string;
-    status: string | null;
-    verifiedHandle: string | null;
-  };
-  tangled?: TangledCard;
 };
+export type StatusEntry = Base & {
+  kind: "now";
+  status: string;
+  /** The reading taken with this status, if it has one. */
+  state: State | null;
+};
+export type StateEntry = Base & { kind: "state"; state: State };
+export type DomainEntry = Base & {
+  kind: "domain";
+  name: string;
+  href: string;
+  status: string | null;
+  verifiedHandle: string | null;
+};
+export type TangledEntry = Base & {
+  kind: "repo" | "activity";
+  card: TangledCard;
+};
+export type TimelineEntry =
+  PostEntry | StatusEntry | StateEntry | DomainEntry | TangledEntry;
+export type TimelineKind = TimelineEntry["kind"];
 
 type NowRecord = {
   status?: string;
@@ -168,7 +183,111 @@ function postMedia(record: AppBskyFeedPost.Record) {
   };
 }
 
-export async function getTimeline() {
+export function postEntries(
+  posts: RepoRecord<AppBskyFeedPost.Record>[],
+): PostEntry[] {
+  return posts.flatMap(({ uri, value }) => {
+    const createdAt = parseDate(value.createdAt);
+    const href = postUrl(uri);
+    if (!createdAt || !href || typeof value.text !== "string") return [];
+    return {
+      uri,
+      kind: "post",
+      createdAt,
+      href,
+      text: postText(value),
+      replyHref: value.reply ? postUrl(value.reply.parent.uri) : undefined,
+      ...postMedia(value),
+    };
+  });
+}
+
+/**
+ * A status takes its reading from the listed states when it is there, and
+ * otherwise follows the ref. `linked` collects the readings that were used, so
+ * they are not shown a second time as entries of their own.
+ */
+async function statusEntries(
+  statuses: RepoRecord<NowRecord>[],
+  states: RepoRecord<StateRecord>[],
+  linked: Set<string>,
+): Promise<StatusEntry[]> {
+  const stateByUri = new Map(states.map(({ uri, value }) => [uri, value]));
+  const entries = await Promise.all(
+    statuses.map(async ({ uri, value }): Promise<StatusEntry | null> => {
+      const createdAt = parseDate(value.createdAt);
+      const status =
+        typeof value.status === "string" ? value.status.trim() : "";
+      if (!createdAt || !status) return null;
+      const stateUri = value.stateRef?.uri;
+      const listed = stateUri ? stateByUri.get(stateUri) : undefined;
+      const state = listed
+        ? parseState(listed)
+        : await getStateFromRef(value.stateRef);
+      if (stateUri && state) linked.add(stateUri);
+      return { uri, kind: "now", createdAt, status, state };
+    }),
+  );
+  return entries.filter((entry) => entry !== null);
+}
+
+export function stateEntries(
+  states: RepoRecord<StateRecord>[],
+  linked: ReadonlySet<string> = new Set(),
+): StateEntry[] {
+  return states.flatMap(({ uri, value }) => {
+    const createdAt = parseDate(value.createdAt);
+    const state = parseState(value);
+    if (!createdAt || !state || linked.has(uri)) return [];
+    return { uri, kind: "state", createdAt, state };
+  });
+}
+
+// A domain must be a hostname, with no URL path, credentials, or port.
+const HOSTNAME =
+  /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+export function domainEntries(
+  domains: RepoRecord<DomainRecord>[],
+): DomainEntry[] {
+  return domains.flatMap(({ uri, value }) => {
+    const createdAt = parseDate(value.createdAt);
+    const name =
+      typeof value.domain === "string" ? value.domain.trim().toLowerCase() : "";
+    if (!createdAt || !HOSTNAME.test(name)) return [];
+    return {
+      uri,
+      kind: "domain",
+      createdAt,
+      name,
+      href: `https://${name}/`,
+      status: typeof value.status === "string" ? value.status : null,
+      verifiedHandle:
+        value.atprotoVerified === true &&
+        typeof value.atprotoHandle === "string"
+          ? value.atprotoHandle
+          : null,
+    };
+  });
+}
+
+function tangledEntries(cards: TangledCard[]): TangledEntry[] {
+  return cards.map((card) => ({
+    // Daily activity has no record of its own. Explore a ticket when present,
+    // otherwise the repository manifest that backs the card.
+    uri:
+      card.items.find((item) => item.kind === "pull")?.id ??
+      `at://${card.repo.did}/org.tangled.repo.manifest/self`,
+    kind: card.kind,
+    createdAt: card.createdAt,
+    card,
+  }));
+}
+
+export async function getTimeline(): Promise<{
+  entries: TimelineEntry[];
+  unavailable: boolean;
+}> {
   const [posts, statuses, states, domains, tangled] = await Promise.all([
     listRecords<AppBskyFeedPost.Record>("app.bsky.feed.post"),
     listRecords<NowRecord>("is.braxton.now", 30, 60_000),
@@ -176,115 +295,14 @@ export async function getTimeline() {
     listAllRecords<DomainRecord>("at.marque.domain"),
     getTangledTimeline(),
   ]);
-  const entries: TimelineEntry[] = [];
   const linkedStates = new Set<string>();
-  const stateByUri = new Map(
-    (states ?? []).map((record) => [record.uri, record.value]),
-  );
-  const nowEntries = await Promise.all(
-    (statuses ?? []).map(async ({ uri, value }) => {
-      const createdAt = parseDate(value.createdAt);
-      if (
-        !createdAt ||
-        typeof value.status !== "string" ||
-        !value.status.trim()
-      )
-        return null;
-      const stateUri = value.stateRef?.uri;
-      const state =
-        stateUri && stateByUri.has(stateUri)
-          ? parseState(stateByUri.get(stateUri)!)
-          : await getStateFromRef(value.stateRef);
-      if (stateUri && state) linkedStates.add(stateUri);
-      return {
-        uri,
-        kind: "now" as const,
-        createdAt,
-        href: aturiUrl(uri),
-        text: [{ text: value.status.trim() }],
-        state,
-        images: [],
-      };
-    }),
-  );
-  for (const entry of nowEntries) if (entry) entries.push(entry);
-  for (const { uri, value } of states ?? []) {
-    const createdAt = parseDate(value.createdAt);
-    const state = parseState(value);
-    if (!createdAt || !state || linkedStates.has(uri)) continue;
-    entries.push({
-      uri,
-      kind: "state",
-      createdAt,
-      href: aturiUrl(uri),
-      text: [],
-      state,
-      images: [],
-    });
-  }
-  for (const { uri, value } of posts ?? []) {
-    const createdAt = parseDate(value.createdAt);
-    const href = postUrl(uri);
-    if (!createdAt || !href || typeof value.text !== "string") continue;
-    entries.push({
-      uri,
-      kind: "post",
-      createdAt,
-      href,
-      text: postText(value),
-      state: null,
-      replyHref: value.reply ? postUrl(value.reply.parent.uri) : undefined,
-      ...postMedia(value),
-    });
-  }
-  for (const { uri, value } of domains ?? []) {
-    const createdAt = parseDate(value.createdAt);
-    const name =
-      typeof value.domain === "string" ? value.domain.trim().toLowerCase() : "";
-    // A domain must be a hostname, with no URL path, credentials, or port.
-    if (
-      !createdAt ||
-      !/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(
-        name,
-      )
-    )
-      continue;
-    entries.push({
-      uri,
-      kind: "domain",
-      createdAt,
-      href: aturiUrl(uri),
-      text: [],
-      state: null,
-      images: [],
-      domain: {
-        name,
-        href: `https://${name}/`,
-        status: typeof value.status === "string" ? value.status : null,
-        verifiedHandle:
-          value.atprotoVerified === true &&
-          typeof value.atprotoHandle === "string"
-            ? value.atprotoHandle
-            : null,
-      },
-    });
-  }
-  for (const card of tangled.cards) {
-    entries.push({
-      // Daily activity has no record of its own. Explore a ticket when present,
-      // otherwise the repository manifest that backs the card.
-      uri:
-        card.items.find((item) => item.kind === "pull")?.id ??
-        `at://${card.repo.did}/org.tangled.repo.manifest/self`,
-      kind: card.kind,
-      createdAt: card.createdAt,
-      href: card.repo.href,
-      text: [],
-      state: null,
-      images: [],
-      tangled: card,
-    });
-  }
+  const entries: TimelineEntry[] = [
+    ...(await statusEntries(statuses ?? [], states ?? [], linkedStates)),
+    ...stateEntries(states ?? [], linkedStates),
+    ...postEntries(posts ?? []),
+    ...domainEntries(domains ?? []),
+    ...tangledEntries(tangled.cards),
+  ];
   return {
     entries: entries.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),

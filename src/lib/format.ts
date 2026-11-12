@@ -1,6 +1,17 @@
 /** Dates are shown, and days are grouped, in my local time zone. */
 export const TIME_ZONE = "America/Chicago";
 
+const fullDate = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "full",
+  timeStyle: "short",
+  timeZone: TIME_ZONE,
+});
+
+/** "Thursday, November 12, 2026 at 6:12 AM", for labels read aloud. */
+export function formatFullDate(date: Date): string {
+  return fullDate.format(date);
+}
+
 /** Parse a record's datetime string, or null if it is missing or invalid. */
 export function parseDate(value: unknown): Date | null {
   if (typeof value !== "string") return null;
