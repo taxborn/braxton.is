@@ -19,6 +19,11 @@
           "createdAt": {
             "type": "string",
             "format": "datetime"
+          },
+          "stateRef": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "The is.braxton.state record taken when this status was posted."
           }
         }
       }

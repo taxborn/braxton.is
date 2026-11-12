@@ -1,4 +1,4 @@
-const DID = "did:plc:2grdruc2p6fjhksrfpt366yl";
+export const DID = "did:plc:2grdruc2p6fjhksrfpt366yl";
 const PDS = "https://pds.biscuits.at";
 const TTL_MS = 5 * 60 * 1000;
 
@@ -35,25 +35,46 @@ async function query<T>(
     `${PDS}/xrpc/${method}?${new URLSearchParams(params)}`,
     { signal: AbortSignal.timeout(3000) },
   );
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new XrpcError(res.status, body?.error);
+  }
   return (await res.json()) as T;
 }
 
+class XrpcError extends Error {
+  readonly code?: string;
+
+  constructor(status: number, code?: string) {
+    super(`${status} ${code ?? ""}`.trim());
+    this.code = code;
+  }
+}
+
 /**
- * Fetch a record from my PDS. Cached in memory for 5 minutes; if the PDS is
- * unreachable, serves the stale value, or returns null if there is none.
+ * Fetch a record from my PDS, or null if it does not exist. Cached in memory
+ * for 5 minutes; if the PDS is unreachable, serves the stale value, or returns
+ * null if there is none.
  */
 export async function getRecord<T = Record<string, unknown>>(
   collection: string,
   rkey = "self",
 ): Promise<T | null> {
   return cached(`${collection}/${rkey}`, TTL_MS, async () => {
-    const { value } = await query<{ value: T }>("com.atproto.repo.getRecord", {
-      repo: DID,
-      collection,
-      rkey,
-    });
-    return value;
+    try {
+      const { value } = await query<{ value: T }>(
+        "com.atproto.repo.getRecord",
+        { repo: DID, collection, rkey },
+      );
+      return value;
+    } catch (err) {
+      // A missing record is an answer, not an outage: cache it like one.
+      if (err instanceof XrpcError && err.code === "RecordNotFound")
+        return null;
+      throw err;
+    }
   });
 }
 

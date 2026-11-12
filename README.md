@@ -13,6 +13,27 @@ An Apple Shortcut writes it and mirrors it as a post on
 [@now.braxton.is](https://bsky.app/profile/now.braxton.is). See
 [`lexicons/NOW.md`](lexicons/NOW.md) for the schema and the Shortcut.
 
+Each status links to an `is.braxton.state` record, a reading of my heart rate,
+activity and phone battery taken as I post it. The header shows that reading
+after the status. See [`lexicons/STATE.md`](lexicons/STATE.md).
+
+## Lexicons
+
+The schemas for my own record types live in [`lexicons/`](lexicons/). To let
+other software look them up by name, each is also published as a
+`com.atproto.lexicon.schema` record in my repo, and a DNS TXT record at
+`_lexicon.braxton.is` with the value `did=did:plc:2grdruc2p6fjhksrfpt366yl`
+points resolvers at that repo.
+
+```sh
+npm run lexicons:check                               # compare, change nothing
+ATPROTO_APP_PASSWORD=... npm run lexicons:publish    # write what differs
+```
+
+A published schema cannot change its constraints. Adding an optional field is
+allowed. Changing a type, a limit or the required list is not, and needs a new
+name instead.
+
 ## Deployment
 
 A push to `main` runs `.tangled/workflows/deploy.yml` on the spindle at

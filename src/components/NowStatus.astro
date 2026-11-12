@@ -1,12 +1,43 @@
 ---
+import { Icon } from "astro-icon/components";
 import { getNow, timeAgo } from "../lib/now";
 
 const now = await getNow();
+const state = now?.state;
+
+function batteryIcon(level: number): string {
+  if (level <= 10) return "boxicons:battery";
+  if (level <= 35) return "boxicons:battery-1";
+  if (level <= 60) return "boxicons:battery-2";
+  if (level <= 85) return "boxicons:battery-3";
+  return "boxicons:battery-full";
+}
 ---
 
 {now && (
   <p class="inline italic text-subtext1">
     {now.status}{" "}
+    {state && (
+      <span class="inline-flex gap-2 align-middle text-sm not-italic opacity-75">
+        {state.heartRate !== null && (
+          <span class="inline-flex items-center gap-1">
+            <Icon name="boxicons:heart" class="size-3.5" aria-hidden="true" />
+            <span class="sr-only">heart rate</span> {state.heartRate} bpm
+          </span>
+        )}
+        {state.activity && <span>{state.activity}</span>}
+        {state.batteryLevel !== null && (
+          <span class="inline-flex items-center gap-1">
+            <Icon
+              name={batteryIcon(state.batteryLevel)}
+              class="size-3.5"
+              aria-hidden="true"
+            />
+            <span class="sr-only">phone battery</span> {state.batteryLevel}%
+          </span>
+        )}
+      </span>
+    )}{" "}
     {now.createdAt && (
       <time
         datetime={now.createdAt.toISOString()}

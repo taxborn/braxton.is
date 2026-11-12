@@ -1,0 +1,46 @@
+{
+  "lexicon": 1,
+  "id": "is.braxton.state",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "One reading of my physical state, sampled from an iPhone and Apple Watch. An append-only log: records are never edited, so an is.braxton.now status can point at the reading taken alongside it.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["createdAt"],
+        "properties": {
+          "heartRate": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 300,
+            "description": "Heart rate in beats per minute. 0 means no reading."
+          },
+          "activity": {
+            "type": "string",
+            "maxLength": 64,
+            "knownValues": [
+              "stationary",
+              "walking",
+              "running",
+              "cycling",
+              "unknown"
+            ],
+            "description": "How I was moving: the label from the Shortcuts action Get Physical Activity, lowercased. Other labels than the known values can appear."
+          },
+          "batteryLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Phone battery charge, in percent."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When the reading was taken."
+          }
+        }
+      }
+    }
+  }
+}
