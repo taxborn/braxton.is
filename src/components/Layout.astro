@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import seasonScript from "../scripts/season.js?raw";
+import NowStatus from "./NowStatus.astro";
 ---
 
 <html lang="en">
@@ -25,9 +26,7 @@ import seasonScript from "../scripts/season.js?raw";
           <a href="/" class="mr-2 font-bold cursor-grab">
             braxton<span class="opacity-75">.</span>is
           </a>
-          <p class="inline italic text-subtext1">
-            working on this website <span class="opacity-50">5m ago</span>
-          </p>
+          <NowStatus />
         </nav>
       </header>
       <main class="flex flex-col py-2">

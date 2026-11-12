@@ -6,6 +6,13 @@ my personal website
 
 [Evergarden](https://evergarden.moe) - `curl -L evergarden.moe`
 
+## Status
+
+The line beside the site name is the newest `is.braxton.now` record in my repo.
+An Apple Shortcut writes it and mirrors it as a post on
+[@now.braxton.is](https://bsky.app/profile/now.braxton.is). See
+[`lexicons/NOW.md`](lexicons/NOW.md) for the schema and the Shortcut.
+
 ## Deployment
 
 A push to `main` runs `.tangled/workflows/deploy.yml` on the spindle at

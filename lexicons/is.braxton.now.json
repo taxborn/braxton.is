@@ -1,0 +1,27 @@
+{
+  "lexicon": 1,
+  "id": "is.braxton.now",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A short status update. Renders as 'braxton.is <status>'.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["status", "createdAt"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "maxLength": 3000,
+            "maxGraphemes": 300,
+            "description": "What I'm doing, written to follow the handle: 'working on this website'. Same limits as app.bsky.feed.post text, since each status is mirrored as a post."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}

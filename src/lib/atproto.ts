@@ -6,6 +6,40 @@ type CacheEntry = { value: unknown; expires: number };
 const cache = new Map<string, CacheEntry>();
 
 /**
+ * Memoise a PDS read in memory. If the read fails, serves the stale value, or
+ * null if there is none.
+ */
+async function cached<T>(
+  key: string,
+  ttlMs: number,
+  load: () => Promise<T>,
+): Promise<T | null> {
+  const hit = cache.get(key);
+  if (hit && hit.expires > Date.now()) return hit.value as T;
+
+  try {
+    const value = await load();
+    cache.set(key, { value, expires: Date.now() + ttlMs });
+    return value;
+  } catch (err) {
+    console.error(`atproto read failed for ${key}:`, err);
+    return (hit?.value as T | undefined) ?? null;
+  }
+}
+
+async function query<T>(
+  method: string,
+  params: Record<string, string>,
+): Promise<T> {
+  const res = await fetch(
+    `${PDS}/xrpc/${method}?${new URLSearchParams(params)}`,
+    { signal: AbortSignal.timeout(3000) },
+  );
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as T;
+}
+
+/**
  * Fetch a record from my PDS. Cached in memory for 5 minutes; if the PDS is
  * unreachable, serves the stale value, or returns null if there is none.
  */
@@ -13,21 +47,30 @@ export async function getRecord<T = Record<string, unknown>>(
   collection: string,
   rkey = "self",
 ): Promise<T | null> {
-  const key = `${collection}/${rkey}`;
-  const hit = cache.get(key);
-  if (hit && hit.expires > Date.now()) return hit.value as T;
-
-  try {
-    const params = new URLSearchParams({ repo: DID, collection, rkey });
-    const res = await fetch(`${PDS}/xrpc/com.atproto.repo.getRecord?${params}`, {
-      signal: AbortSignal.timeout(3000),
+  return cached(`${collection}/${rkey}`, TTL_MS, async () => {
+    const { value } = await query<{ value: T }>("com.atproto.repo.getRecord", {
+      repo: DID,
+      collection,
+      rkey,
     });
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    const { value } = (await res.json()) as { value: T };
-    cache.set(key, { value, expires: Date.now() + TTL_MS });
     return value;
-  } catch (err) {
-    console.error(`atproto getRecord failed for ${key}:`, err);
-    return (hit?.value as T | undefined) ?? null;
-  }
+  });
+}
+
+/**
+ * Fetch the newest record in a collection on my PDS, or null if the collection
+ * is empty. "Newest" is the highest record key, which for TID-keyed
+ * collections is the most recently created. Cached like getRecord.
+ */
+export async function getLatestRecord<T = Record<string, unknown>>(
+  collection: string,
+  ttlMs = TTL_MS,
+): Promise<T | null> {
+  return cached(`${collection}/latest`, ttlMs, async () => {
+    const { records } = await query<{ records: { value: T }[] }>(
+      "com.atproto.repo.listRecords",
+      { repo: DID, collection, limit: "1" },
+    );
+    return records[0]?.value ?? null;
+  });
 }
