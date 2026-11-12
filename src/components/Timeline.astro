@@ -4,7 +4,9 @@ import StateReadout from "./StateReadout.astro";
 import TangledActivity from "./TangledActivity.astro";
 import AturiButton from "./AturiButton.astro";
 import { getTimeline } from "../lib/timeline";
-import { TIME_ZONE, timeAgo } from "../lib/format";
+import RelativeTime from "./RelativeTime.astro";
+import { TIME_ZONE } from "../lib/format";
+import type { TimelineEntry } from "../lib/timeline";
 
 const { entries, unavailable } = await getTimeline();
 const labels = {
@@ -37,6 +39,8 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
   timeZone: TIME_ZONE,
 });
+const recordLabel = (entry: TimelineEntry) =>
+  `${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`;
 ---
 
 <section class="timeline" aria-labelledby="timeline-title">
@@ -60,7 +64,7 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
         <span class="node" aria-hidden="true">
           <Icon name={icons[entry.kind]} />
         </span>
-        <article class="record" aria-label={labels[entry.kind]}>
+        <article class="record" aria-label={recordLabel(entry)}>
           {entry.kind === "post" && (
             <a
               class="post-card-link"
@@ -71,14 +75,10 @@ const fullDate = new Intl.DateTimeFormat("en-US", {
           <header class="record-heading">
             <span class="record-type">{labels[entry.kind]}</span>
             <div class="record-actions">
-              <time
-                datetime={entry.createdAt.toISOString()}
-              >
-                {timeAgo(entry.createdAt)}
-              </time>
+              <RelativeTime date={entry.createdAt} />
               <AturiButton
                 uri={entry.uri}
-                label={`${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
+                label={recordLabel(entry)}
               />
             </div>
           </header>

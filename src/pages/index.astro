@@ -14,16 +14,19 @@ const links = [
   {
     href: "https://bsky.app/profile/braxton.is",
     icon: "simple-icons:bluesky",
+    site: "Bluesky",
     label: "@braxton.is",
   },
   {
     href: "https://tangled.org/braxton.is",
     icon: "simple-icons:tangled",
+    site: "Tangled",
     label: "@braxton.is",
   },
   {
     href: "https://sifa.id/p/braxton.is",
     icon: "boxicons:briefcase",
+    site: null,
     label: "sifa.id",
   },
 ];
@@ -54,9 +57,11 @@ const links = [
         <li>
           <a
             href={link.href}
+            rel="me"
             class="inline-flex items-center gap-1.5 rounded-sm text-blue underline-offset-4 hover:text-mauve hover:underline focus-visible:text-mauve focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue"
           >
-            <Icon name={link.icon} class="size-4" />
+            <Icon name={link.icon} class="size-4" aria-hidden="true" />
+            {link.site && <span class="sr-only">{`${link.site}: `}</span>}
             {link.label}
           </a>
         </li>

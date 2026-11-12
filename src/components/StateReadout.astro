@@ -35,10 +35,10 @@ const { state } = Astro.props;
       <dd>
         {state.batteryLevel}
         <span>%</span>
+        <div class="battery-track" aria-hidden="true">
+          <span style={`width: ${state.batteryLevel}%`}></span>
+        </div>
       </dd>
-      <div class="battery-track" aria-hidden="true">
-        <span style={`width: ${state.batteryLevel}%`}></span>
-      </div>
     </div>
   )}
 </dl>
