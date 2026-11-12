@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import NowStatus from "./NowStatus.astro";
 import NowPlaying from "./NowPlaying.astro";
+import Sidebar from "./Sidebar.astro";
 import { DID } from "../lib/atproto";
 ---
 
@@ -21,8 +22,8 @@ import { DID } from "../lib/atproto";
     <link rel="me" href="https://sifa.id/p/braxton.is" />
   </head>
   <body class="bg-base text-text antialiased">
-    <div class="container mx-auto p-2">
-      <header>
+    <div class="mx-auto max-w-7xl p-4">
+      <header class="border-b border-surface0 pb-2">
         <nav>
           <a href="/" class="mr-2 font-bold cursor-grab">
             braxton<span class="opacity-75">.</span>is
@@ -31,9 +32,12 @@ import { DID } from "../lib/atproto";
         </nav>
         <NowPlaying />
       </header>
-      <main class="flex flex-col py-2">
-        <slot />
-      </main>
+      <div class="lg:grid lg:grid-cols-4 lg:gap-8">
+        <Sidebar />
+        <main class="flex flex-col py-2 lg:col-span-3">
+          <slot />
+        </main>
+      </div>
     </div>
   </body>
 </html>
