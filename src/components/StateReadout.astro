@@ -1,0 +1,104 @@
+---
+import { Icon } from "astro-icon/components";
+import type { State } from "../lib/now";
+interface Props {
+  state: State;
+}
+const { state } = Astro.props;
+---
+
+<dl class="readings">
+  {state.heartRate !== null && (
+    <div class="reading pulse">
+      <dt>
+        <Icon name="boxicons:heart" aria-hidden="true" /> heart rate
+      </dt>
+      <dd>
+        {state.heartRate}
+        <span> bpm</span>
+      </dd>
+    </div>
+  )}
+  {state.activity && (
+    <div class="reading activity">
+      <dt>
+        <Icon name="boxicons:walking" aria-hidden="true" /> activity
+      </dt>
+      <dd>{state.activity}</dd>
+    </div>
+  )}
+  {state.batteryLevel !== null && (
+    <div class="reading battery">
+      <dt>
+        <Icon name="boxicons:battery" aria-hidden="true" /> phone battery
+      </dt>
+      <dd>
+        {state.batteryLevel}
+        <span>%</span>
+      </dd>
+      <div class="battery-track" aria-hidden="true">
+        <span style={`width: ${state.batteryLevel}%`}></span>
+      </div>
+    </div>
+  )}
+</dl>
+
+<style>
+  .readings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.2rem;
+  }
+  .reading {
+    flex: 1 1 7rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--reading-color) 7%, var(--ctp-base));
+  }
+  .pulse {
+    --reading-color: var(--ctp-red);
+  }
+  .activity {
+    --reading-color: var(--ctp-mauve);
+  }
+  .battery {
+    --reading-color: var(--ctp-green);
+  }
+  dt {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ctp-subtext0);
+    font-size: 0.65rem;
+  }
+  dt :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--reading-color);
+  }
+  dd {
+    margin-top: 0.25rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--reading-color);
+    overflow-wrap: anywhere;
+  }
+  dd span {
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
+  .battery-track {
+    height: 3px;
+    background: color-mix(in srgb, var(--ctp-green) 15%, transparent);
+    border-radius: 1rem;
+    margin-top: 0.35rem;
+    overflow: hidden;
+  }
+  .battery-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ctp-green);
+  }
+</style>

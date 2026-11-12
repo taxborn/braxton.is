@@ -1,0 +1,553 @@
+---
+import { Icon } from "astro-icon/components";
+import StateReadout from "./StateReadout.astro";
+import TangledActivity from "./TangledActivity.astro";
+import { getTimeline } from "../lib/timeline";
+import { timeAgo } from "../lib/now";
+
+const { entries, unavailable } = await getTimeline();
+const labels = {
+  post: "post",
+  now: "status update",
+  state: "state reading",
+  domain: "domain",
+  repo: "repository created",
+  activity: "code activity",
+};
+const icons = {
+  post: "simple-icons:bluesky",
+  now: "boxicons:message-circle-dots",
+  state: "boxicons:pulse",
+  domain: "boxicons:globe",
+  repo: "simple-icons:tangled",
+  activity: "boxicons:git-commit",
+};
+const day = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "America/Chicago",
+});
+const year = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  timeZone: "America/Chicago",
+});
+const fullDate = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "full",
+  timeStyle: "short",
+  timeZone: "America/Chicago",
+});
+---
+
+<section class="timeline" aria-labelledby="timeline-title">
+  <header class="timeline-heading">
+    <div>
+      <h2 id="timeline-title">atproto records</h2>
+    </div>
+  </header>
+
+  {unavailable && (
+    <p class="notice">
+      Some records couldn't be reached. Here's what's available for now.
+    </p>
+  )}
+
+  <ol class="entries">
+    {entries.map((entry) => (
+      <li class:list={["entry", entry.kind]}>
+        <div class="date-label" aria-hidden="true">
+          <span>{day.format(entry.createdAt)}</span>
+          <span>{year.format(entry.createdAt)}</span>
+        </div>
+        <span class="node" aria-hidden="true">
+          <Icon name={icons[entry.kind]} />
+        </span>
+        <article class="record" aria-label={labels[entry.kind]}>
+          <header class="record-heading">
+            <span class="record-type">{labels[entry.kind]}</span>
+            <a
+              class="timestamp"
+              href={entry.href}
+              aria-label={`View ${labels[entry.kind]} from ${fullDate.format(entry.createdAt)}`}
+            >
+              <time
+                datetime={entry.createdAt.toISOString()}
+                title={`${fullDate.format(entry.createdAt)} (Central time)`}
+              >
+                {timeAgo(entry.createdAt)}
+              </time>
+              <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+            </a>
+          </header>
+          {entry.tangled && <TangledActivity card={entry.tangled} />}
+          {entry.domain && (
+            <div class="domain-details">
+              <a class="domain-name" href={entry.domain.href}>
+                {entry.domain.name}
+                <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+              </a>
+              <div class="domain-meta">
+                <a href="https://marque.at/">marque.at</a>
+                {entry.domain.status && (
+                  <span>
+                    {entry.domain.status === "transferPending"
+                      ? "transfer pending"
+                      : entry.domain.status}
+                  </span>
+                )}
+                {entry.domain.verifiedHandle && (
+                  <span
+                    title={`Verified handle: @${entry.domain.verifiedHandle}`}
+                  >
+                    <Icon name="boxicons:check-circle" aria-hidden="true" />{" "}
+                    verified handle
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          {entry.replyHref && (
+            <a class="context-link" href={entry.replyHref}>
+              <Icon name="boxicons:reply" aria-hidden="true" /> in reply to a
+              post
+            </a>
+          )}
+          {entry.kind === "now" && <p class="status-prefix">braxton.is</p>}
+          {entry.text.length > 0 && (
+            <p
+              class:list={[
+                "record-text",
+                { "status-text": entry.kind === "now" },
+              ]}
+            >
+              {entry.text.map((part) =>
+                part.href ? (
+                  <a href={part.href} rel="ugc">
+                    {part.text}
+                  </a>
+                ) : (
+                  part.text
+                ),
+              )}
+            </p>
+          )}
+          {entry.kind === "state" && (
+            <p class="state-title">
+              a moment in numbers{" "}
+              <svg viewBox="0 0 100 24" fill="none" aria-hidden="true">
+                <path
+                  d="M0 12h25l7-5 8 15 10-21 8 15 6-4h36"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </p>
+          )}
+          {entry.state && <StateReadout state={entry.state} />}
+          {entry.images.length > 0 && (
+            <div
+              class:list={[
+                "post-images",
+                { "multiple-images": entry.images.length > 1 },
+              ]}
+            >
+              {entry.images.map((image) => (
+                <a href={image.src} aria-label={image.alt || "View full image"}>
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    loading="lazy"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
+          {entry.external && (
+            <a class="link-preview" href={entry.external.uri} rel="ugc">
+              <span class="link-host">
+                {new URL(entry.external.uri).hostname}{" "}
+                <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+              </span>
+              <span class="link-title">
+                {entry.external.title || entry.external.uri}
+              </span>
+              {entry.external.description && (
+                <span class="link-description">
+                  {entry.external.description}
+                </span>
+              )}
+            </a>
+          )}
+          {entry.quoteHref && (
+            <a class="context-link quote-link" href={entry.quoteHref}>
+              <Icon name="boxicons:quote-left" aria-hidden="true" /> view quoted
+              post <span aria-hidden="true">↗</span>
+            </a>
+          )}
+          {entry.kind === "post" && (
+            <a class="post-footer" href={entry.href}>
+              open in bluesky <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </article>
+      </li>
+    ))}
+  </ol>
+  {entries.length === 0 && (
+    <p class="empty" role="status">
+      {unavailable
+        ? "The timeline is taking a breather. Check back soon."
+        : "Nothing here yet. More soon."}
+    </p>
+  )}
+</section>
+
+<style>
+  .timeline {
+    display: block;
+    max-width: 56rem;
+    width: 100%;
+  }
+  .timeline-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  h2 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1.1;
+    margin-top: 0.4rem;
+  }
+  h2 > span {
+    color: var(--ctp-mauve);
+  }
+  .entries {
+    position: relative;
+    list-style: none;
+    padding: 0;
+  }
+  .entries::before {
+    content: "";
+    position: absolute;
+    left: 6.25rem;
+    top: 1.3rem;
+    bottom: 0;
+    width: 1px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--ctp-surface1) 0 4px,
+      transparent 4px 9px
+    );
+  }
+  .entry {
+    --accent: var(--ctp-blue);
+    display: grid;
+    grid-template-columns: 4.5rem 1.5rem minmax(0, 1fr);
+    gap: 1rem;
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  .entry.now {
+    --accent: var(--ctp-mauve);
+  }
+  .entry.state {
+    --accent: var(--ctp-teal);
+  }
+  .entry.domain {
+    --accent: var(--ctp-peach);
+  }
+  .entry.repo {
+    --accent: var(--ctp-green);
+  }
+  .entry.activity {
+    --accent: var(--ctp-lavender);
+  }
+  .domain-name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+  }
+  .domain-name :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+  .domain-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--ctp-subtext1);
+  }
+  .domain-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .domain-meta :global(svg) {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+  .date-label {
+    padding-top: 1.15rem;
+    text-align: right;
+    font:
+      0.75rem ui-monospace,
+      monospace;
+    color: var(--ctp-subtext1);
+  }
+  .date-label span {
+    display: block;
+  }
+  .date-label span + span {
+    margin-top: 0.25rem;
+    font-size: 0.6rem;
+    color: var(--ctp-subtext0);
+  }
+  .node {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: 1rem 0 0 -0.125rem;
+    z-index: 1;
+    border-radius: 50%;
+    color: var(--accent);
+    background: var(--ctp-base);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--ctp-base));
+    box-shadow: 0 0 0 5px var(--ctp-base);
+  }
+  .node :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .record {
+    min-width: 0;
+    padding: 1.15rem 1.35rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--ctp-base));
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--accent) 3%, var(--ctp-base));
+    box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 6%, transparent);
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .record:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--ctp-base));
+    transform: translateY(-2px);
+  }
+  .now .record {
+    border-radius: 0.3rem 1rem 1rem 1rem;
+    background: color-mix(in srgb, var(--accent) 6%, var(--ctp-base));
+  }
+  .state .record {
+    border-style: dashed;
+  }
+  .record-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+  .record-type {
+    color: var(--accent);
+    font:
+      0.65rem ui-monospace,
+      monospace;
+    letter-spacing: 0.04em;
+  }
+  .timestamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ctp-subtext0);
+    font-size: 0.65rem;
+  }
+  .timestamp :global(svg) {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+  a:hover {
+    color: var(--accent, var(--ctp-mauve));
+  }
+  a:focus-visible {
+    outline: 2px solid var(--ctp-mauve);
+    outline-offset: 4px;
+    border-radius: 0.2rem;
+  }
+  .record-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+  .record-text a {
+    color: var(--ctp-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .status-prefix {
+    color: var(--ctp-subtext0);
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+  .status-text {
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  .state-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+  }
+  .state-title svg {
+    width: 5rem;
+    height: 1.5rem;
+    color: var(--ctp-teal);
+    flex-shrink: 0;
+  }
+  .context-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    color: var(--ctp-subtext0);
+    margin-bottom: 0.65rem;
+  }
+  .context-link :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .quote-link {
+    margin: 1rem 0 0;
+    padding: 0.65rem 0.85rem;
+    border-left: 2px solid var(--ctp-blue);
+    background: color-mix(in srgb, var(--ctp-blue) 5%, transparent);
+    border-radius: 0 0.4rem 0.4rem 0;
+    display: flex;
+  }
+  .post-images {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    border-radius: 0.6rem;
+    overflow: hidden;
+  }
+  .multiple-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .post-images img {
+    width: 100%;
+    height: auto;
+    max-height: 30rem;
+    object-fit: contain;
+    background: var(--ctp-mantle);
+  }
+  .multiple-images img {
+    height: 100%;
+    max-height: 18rem;
+    object-fit: cover;
+  }
+  .link-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 1rem;
+    padding: 0.85rem;
+    border: 1px solid var(--ctp-surface0);
+    border-radius: 0.6rem;
+    overflow-wrap: anywhere;
+  }
+  .link-host {
+    display: flex;
+    justify-content: space-between;
+    font:
+      0.6rem ui-monospace,
+      monospace;
+    color: var(--ctp-subtext0);
+  }
+  .link-host :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+  .link-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .link-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--ctp-subtext1);
+    font-size: 0.75rem;
+  }
+  .post-footer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    font-size: 0.65rem;
+    color: var(--ctp-subtext0);
+  }
+  .notice,
+  .empty {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+    background: var(--ctp-mantle);
+    font-size: 0.85rem;
+    color: var(--ctp-subtext1);
+  }
+  @media (max-width: 600px) {
+    .timeline {
+      margin-top: 3rem;
+    }
+    .timeline-heading {
+      align-items: center;
+    }
+    .entry {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+    .date-label {
+      display: none;
+    }
+    .entries::before {
+      left: 0.75rem;
+    }
+    .record {
+      padding: 1rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .record {
+      transition: none;
+    }
+    .record:hover {
+      transform: none;
+    }
+  }
+</style>

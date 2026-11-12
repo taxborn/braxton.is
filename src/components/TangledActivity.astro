@@ -1,0 +1,175 @@
+---
+import { Icon } from "astro-icon/components";
+import type { TangledCard } from "../lib/tangled";
+import { timeAgo } from "../lib/now";
+interface Props {
+  card: TangledCard;
+}
+const { card } = Astro.props;
+const commits = card.items.filter((item) => item.kind === "commit").length;
+const pulls = card.items.filter((item) => item.kind === "pull").length;
+const counts = [
+  commits ? `${commits} ${commits === 1 ? "commit" : "commits"}` : null,
+  pulls ? `${pulls} ${pulls === 1 ? "pull request" : "pull requests"}` : null,
+]
+  .filter(Boolean)
+  .join(" · ");
+---
+
+<div class="tangled-activity">
+  <a class="repo-name" href={card.repo.href}>
+    {card.repo.name}
+    <Icon name="boxicons:arrow-up-right" aria-hidden="true" />
+  </a>
+  {card.kind === "repo" && card.repo.description && (
+    <p class="repo-description">{card.repo.description}</p>
+  )}
+  {card.kind === "activity" && (
+    <details>
+      <summary>
+        <span>{counts}</span>
+        <span class="expand-hint">
+          details <Icon name="boxicons:chevron-down" aria-hidden="true" />
+        </span>
+      </summary>
+      <ol aria-label={`Activity in ${card.repo.name}`}>
+        {card.items.map((item) => (
+          <li>
+            <Icon
+              name={
+                item.kind === "commit"
+                  ? "boxicons:git-commit"
+                  : "boxicons:git-pull-request"
+              }
+              aria-hidden="true"
+            />
+            <div>
+              <a class="item-title" href={item.href}>
+                {item.title}
+              </a>
+              <div class="item-meta">
+                <span>{item.detail}</span>
+                <time
+                  datetime={item.createdAt.toISOString()}
+                  title={item.createdAt.toUTCString()}
+                >
+                  {timeAgo(item.createdAt)}
+                </time>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  )}
+</div>
+
+<style>
+  .repo-name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .repo-name :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+  a:hover {
+    color: var(--accent);
+  }
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 0.2rem;
+  }
+  .repo-description {
+    color: var(--ctp-subtext1);
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  details {
+    margin-top: 0.75rem;
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.65rem 0.8rem;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-radius: 0.5rem;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.8rem;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .expand-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.65rem;
+  }
+  .expand-hint :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+  details[open] .expand-hint :global(svg) {
+    transform: rotate(180deg);
+  }
+  ol {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.75rem;
+    max-height: 24rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  li {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.75rem 0.2rem;
+    border-bottom: 1px solid var(--ctp-surface0);
+  }
+  li:last-child {
+    border-bottom: 0;
+  }
+  li > :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    color: var(--accent);
+  }
+  .item-title {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .item-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    margin-top: 0.35rem;
+    color: var(--ctp-subtext0);
+    font-size: 0.65rem;
+  }
+  .item-meta span {
+    overflow-wrap: anywhere;
+  }
+  time {
+    white-space: nowrap;
+  }
+</style>
