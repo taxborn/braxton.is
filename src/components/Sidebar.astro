@@ -8,6 +8,10 @@ const [sifaProfile, avatarUrl] = await Promise.all([
 ]);
 const headline =
   sifaProfile?.headline ?? "software engineer, protocol-intrigued, cat parent";
+const REPO_URL = "https://tangled.org/braxton.is/braxton.is";
+// Injected at build time (see astro.config.mjs); empty if git was unavailable.
+const commit = __LAST_COMMIT__;
+
 const links = [
   {
     href: "https://bsky.app/profile/braxton.is",
@@ -65,5 +69,18 @@ const links = [
         </li>
       ))}
     </ul>
+    {commit && (
+      <footer class="text-sm text-subtext0">
+        <a
+          href={`${REPO_URL}/commit/${commit.hash}`}
+          title={commit.subject}
+          class="inline-flex items-center gap-1.5 rounded-sm underline-offset-4 hover:text-mauve hover:underline focus-visible:text-mauve focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue"
+        >
+          <Icon name="boxicons:git-commit" class="size-4" aria-hidden="true" />
+          <span class="sr-only">Last commit: </span>
+          <code>{commit.hash}</code>
+        </a>
+      </footer>
+    )}
   </div>
 </aside>
