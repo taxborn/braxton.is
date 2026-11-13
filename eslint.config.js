@@ -13,6 +13,11 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
+    // Injected at build time via vite `define` (see astro.config.mjs).
+    files: ['src/**/*.astro', 'src/**/*.ts'],
+    languageOptions: { globals: { __LAST_COMMIT__: 'readonly' } },
+  },
+  {
     files: ['src/scripts/**/*.js'],
     languageOptions: { globals: globals.browser },
   },
