@@ -6,12 +6,20 @@ const play = await getNowPlaying();
 ---
 
 {play && (
-  <p class="mt-1 text-sm text-subtext1">
-    <Icon name="boxicons:music" class="mr-1 inline-block size-3.5 align-middle" aria-hidden="true" />
+  <p class="text-sm text-subtext1">
+    <Icon
+      name="boxicons:music"
+      class="mr-1 inline-block size-3.5 align-middle"
+      aria-hidden="true"
+    />
     Now playing:{" "}
     {play.url ? (
-      <a href={play.url} class="text-blue hover:underline">{play.track}</a>
-    ) : play.track}
+      <a href={play.url} class="text-blue hover:underline">
+        {play.track}
+      </a>
+    ) : (
+      play.track
+    )}
     {play.artists.length > 0 && <> by {play.artists.join(", ")}</>}
   </p>
 )}

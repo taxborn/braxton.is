@@ -23,14 +23,16 @@ import { DID } from "../lib/atproto";
   </head>
   <body class="bg-base text-text antialiased">
     <div class="mx-auto max-w-7xl p-4">
-      <header class="border-b border-surface0 pb-2">
-        <nav>
+      <header class="bg-mantle p-2 rounded">
+        <div>
           <a href="/" class="mr-2 font-bold cursor-grab">
-            braxton<span class="opacity-75">.</span>is
+            braxton<span class="opacity-50">.</span>is
           </a>
           <NowStatus />
-        </nav>
-        <NowPlaying />
+        </div>
+        <div class="bg-crust mt-2 p-2 rounded">
+          <NowPlaying />
+        </div>
       </header>
       <div class="lg:grid lg:grid-cols-4 lg:gap-8">
         <Sidebar />
