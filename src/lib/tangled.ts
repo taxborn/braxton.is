@@ -1,4 +1,4 @@
-import { cached, DID, listAllRecords, query } from "./atproto";
+import { cached, DID, failureReason, listAllRecords, query } from "./atproto";
 import { parseDate, TIME_ZONE } from "./format";
 
 const TTL_MS = 5 * 60_000;
@@ -48,6 +48,10 @@ type Commit = {
   message: string;
   author: { name: string; when: string };
 };
+
+function describe(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
 
 function repoUrl(owner: string, name: string): string {
   return `https://tangled.org/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
@@ -117,6 +121,7 @@ async function getCommits(did: string) {
     const commits: Commit[] = [];
     let unavailable = false;
     let successful = 0;
+    let firstFailure: unknown;
     // Limit simultaneous history requests for repos with many branches.
     for (let i = 0; i < tips.length; i += 4) {
       const results = await Promise.allSettled(
@@ -134,11 +139,16 @@ async function getCommits(did: string) {
         if (result.status === "fulfilled") {
           commits.push(...result.value.commits);
           successful++;
-        } else unavailable = true;
+        } else {
+          unavailable = true;
+          firstFailure ??= result.reason;
+        }
       }
     }
     if (tips.length > 0 && successful === 0)
-      throw new Error(`Could not read commits for ${did}`);
+      throw new Error(`Could not read commits for ${did}`, {
+        cause: firstFailure,
+      });
     return {
       commits: [
         ...new Map(commits.map((commit) => [commit.hash, commit])).values(),
@@ -147,6 +157,7 @@ async function getCommits(did: string) {
         .sort((a, b) => Date.parse(b.author.when) - Date.parse(a.author.when))
         .slice(0, 50),
       unavailable,
+      failure: unavailable ? describe(firstFailure) : undefined,
     };
   });
 }
@@ -184,7 +195,10 @@ export function groupTangledActivity(
 export async function getTangledTimeline(): Promise<{
   cards: TangledCard[];
   unavailable: boolean;
+  /** One line per source that could not be fully read. */
+  missing: string[];
 }> {
+  const missing: string[] = [];
   const [declarations, profile] = await Promise.all([
     listAllRecords<Declaration>("org.tangled.repo.declaration"),
     cached("tangled/profile-activity", TTL_MS, () =>
@@ -195,8 +209,15 @@ export async function getTangledTimeline(): Promise<{
       ),
     ),
   ]);
-  let unavailable =
-    declarations === null || profile === null || profile?.truncated === true;
+  if (declarations === null)
+    missing.push(
+      `repo declarations: ${failureReason("org.tangled.repo.declaration/all")}`,
+    );
+  if (profile === null)
+    missing.push(
+      `profile activity: ${failureReason("tangled/profile-activity")}`,
+    );
+  if (profile?.truncated) missing.push("profile activity: truncated");
   const repos = new Map<
     string,
     { repo: Repo; createdAt?: Date; owned: boolean }
@@ -254,13 +275,24 @@ export async function getTangledTimeline(): Promise<{
                 "org.tangled.track.ticket",
                 match[2],
               );
-              if (!ticket) unavailable = true;
+              if (!ticket)
+                missing.push(
+                  `${repo.name} ticket ${match[2]}: ${failureReason(`tangled/record/${repo.did}/org.tangled.track.ticket/${match[2]}`)}`,
+                );
               return { ticket, key: match[2], uri: pull.uri };
             }),
         ),
       ]);
-      if (owned && (!manifest || !commits)) unavailable = true;
-      if (commits?.unavailable) unavailable = true;
+      if (owned && !manifest)
+        missing.push(
+          `${repo.name} manifest: ${failureReason(`tangled/record/${repo.did}/org.tangled.repo.manifest/self`)}`,
+        );
+      if (owned && !commits)
+        missing.push(
+          `${repo.name} commits: ${failureReason(`tangled/commits/${repo.did}`)}`,
+        );
+      if (commits?.unavailable)
+        missing.push(`${repo.name} some branches: ${commits.failure}`);
       if (manifest?.declaration?.owner === DID) {
         repo.name = manifest.declaration.name;
         repo.href = repoUrl(DID, repo.name);
@@ -314,5 +346,5 @@ export async function getTangledTimeline(): Promise<{
       return [...repoCards, ...groupTangledActivity(repo, items)];
     }),
   );
-  return { cards: cards.flat(), unavailable };
+  return { cards: cards.flat(), unavailable: missing.length > 0, missing };
 }

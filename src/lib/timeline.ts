@@ -303,12 +303,18 @@ export async function getTimeline(): Promise<{
     ...domainEntries(domains ?? []),
     ...tangledEntries(tangled.cards),
   ];
+  const missing = [
+    ...Object.entries({ posts, statuses, states, domains })
+      .filter(([, records]) => records === null)
+      .map(([name]) => `${name}: no data`),
+    ...tangled.missing.map((reason) => `tangled ${reason}`),
+  ];
+  if (missing.length)
+    console.warn(`timeline incomplete:\n  ${missing.join("\n  ")}`);
   return {
     entries: entries.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
     ),
-    unavailable:
-      tangled.unavailable ||
-      [posts, statuses, states, domains].some((records) => records === null),
+    unavailable: missing.length > 0,
   };
 }

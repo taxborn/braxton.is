@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
+import { mkdtempSync } from "node:fs";
 import { test } from "node:test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+// Keep the on-disk read cache out of the repo and away from other runs.
+process.env.ATPROTO_CACHE_DIR = mkdtempSync(join(tmpdir(), "atproto-test-"));
 
 // Node strips TypeScript; resolve the extensionless imports used by Astro.
 registerHooks({
